@@ -3,6 +3,8 @@ from aiogram.types import FSInputFile
 from aiogram.types import Message
 from .logging import logger
 from .lang import get_lang
+from .handler import commands as cmd_handler
+from .handler import message as msg_handler
 
 # Command decorator
 commands = {}
