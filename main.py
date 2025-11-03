@@ -2,6 +2,7 @@ import asyncio
 from core.bot import bot_instance
 from core.handler.commands import load_commands, register_commands
 from core.handler.events import load_events, register_events
+from core.handler.message import load_message_handlers
 from core.pid_manager import pid_manager
 from core import logger
 import config
@@ -58,6 +59,15 @@ async def main():
         logger.info("Events registered successfully")
     except Exception as e:
         logger.error(f"Critical error registering events: {e}")
+
+    # Load and register message handlers
+    try:
+        loaded, failed = load_message_handlers()
+        logger.info(f"Message handlers loaded: {loaded}, failed: {failed}")
+        if failed > 0:
+            logger.warning(f"{failed} message handlers failed to load but bot will continue")
+    except Exception as e:
+        logger.error(f"Critical error loading message handlers: {e}")
 
     # Start the bot
     try:

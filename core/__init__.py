@@ -1,10 +1,18 @@
 from aiogram import Bot, Dispatcher
 from aiogram.types import FSInputFile
 from aiogram.types import Message
+import asyncio
+import aiohttp
+from aiogram import types
+from aiogram.filters import Command as CommandFilter
+
 from .logging import logger
 from .lang import get_lang
 from .handler import commands as cmd_handler
 from .handler import message as msg_handler
+
+# Global dispatcher instance
+dp = Dispatcher()
 
 # Command decorator
 commands = {}
@@ -31,4 +39,7 @@ __all__ = [
     "get_lang",
     "config",
     "FSInputFile",
+    "types",
+    "CommandFilter",
+    "aiohttp"
 ]
