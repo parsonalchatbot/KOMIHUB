@@ -42,6 +42,7 @@ class KomihubBot:
         if event_type == "chat_member":
             self.dp.chat_member.register(handler)
         elif event_type == "message":
+            # Register message handler without command filter to catch all messages
             self.dp.message.register(handler)
         # Add more event types as needed
 
