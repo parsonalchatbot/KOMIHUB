@@ -1,5 +1,6 @@
+import time
 from core import Message, command, logger, get_lang
-from core.config import config
+import config
 from core.database import db
 
 lang = get_lang()
@@ -220,18 +221,21 @@ async def list_admins(message: Message):
         "ch_admins": "📢 Channel Admins",
     }
 
-    for role_type, user_ids in admins.items():
-        if user_ids:
+    for role_type, admin_entries in admins.items():
+        if admin_entries:
             admin_text += f"<b>{role_names.get(role_type, role_type)}:</b>\n"
-            for user_id in user_ids:
+            for admin_entry in admin_entries:
+                user_id = admin_entry.get("user_id")
+                added_at = admin_entry.get("added_at", 0)
+                added_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(added_at)) if added_at else "Unknown"
                 try:
                     user = await message.bot.get_chat_member(message.chat.id, user_id)
                     user = user.user
                     name = f"{user.first_name} {user.last_name or ''}".strip()
-                    admin_text += f"• {name} (<code>{user_id}</code>)\n"
+                    admin_text += f"• {name} (<code>{user_id}</code>) - Added: {added_time}\n"
                 except Exception:
                     # If user not in chat, just show ID
-                    admin_text += f"• User {user_id} (<code>{user_id}</code>)\n"
+                    admin_text += f"• User {user_id} (<code>{user_id}</code>) - Added: {added_time}\n"
             admin_text += "\n"
 
     await message.answer(admin_text, parse_mode="HTML")
