@@ -55,9 +55,9 @@ async def baby(message: Message):
             await message.answer(
                 "👶 <b>Hi! I'm Baby!</b> 💕\n\n"
                 "To chat with me:\n"
-                "• Use: /baby [your message]\n"
-                "• Or reply to my messages!\n\n"
-                "Try: /baby hello"
+                "• Reply to my messages to continue chatting!\n"
+                "• Or use: /baby [your message]\n\n"
+                "First, send me a message by replying to this!"
             )
             return
         user_text = args[1].strip()
