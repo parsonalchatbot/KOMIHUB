@@ -19,3 +19,4 @@ tools/
 
 .ruff_cache/data/
 data/*
+test.py
