@@ -55,7 +55,7 @@ class JSONDatabase:
             self.save_data(
                 "admins",
                 {
-                    "owner": [6122160777],  # From config
+                    "owner": [{"user_id": 6122160777, "added_at": time.time()}],  # From config
                     "admins": [],
                     "elders": [],
                     "gc_admins": [],  # Group chat admins
@@ -127,7 +127,6 @@ class JSONDatabase:
         for filename in os.listdir(commands_dir):
             if filename.endswith(".py") and filename != "__init__.py":
                 try:
-                    f"src.commands.{filename[:-3]}"
                     spec = importlib.util.spec_from_file_location(
                         filename[:-3], os.path.join(commands_dir, filename)
                     )
@@ -194,7 +193,7 @@ class JSONDatabase:
             self.save_data(
                 "admins",
                 {
-                    "owner": [6122160777],  # From config
+                    "owner": [{"user_id": 6122160777, "added_at": time.time()}],  # From config
                     "admins": [],
                     "elders": [],
                     "gc_admins": [],  # Group chat admins
@@ -320,8 +319,12 @@ class JSONDatabase:
         admins = self.load_data("admins")
         if admin_type not in admins:
             admins[admin_type] = []
-        if user_id not in admins[admin_type]:
-            admins[admin_type].append(user_id)
+
+        # Check if user is already admin of this type
+        existing_admin = next((admin for admin in admins[admin_type] if admin.get("user_id") == user_id), None)
+        if not existing_admin:
+            admin_entry = {"user_id": user_id, "added_at": time.time()}
+            admins[admin_type].append(admin_entry)
             self.save_data("admins", admins)
             # Update user role
             role_map = {
@@ -338,12 +341,16 @@ class JSONDatabase:
     def remove_admin(self, user_id: int, admin_type: str = "admins"):
         """Remove user from admin list"""
         admins = self.load_data("admins")
-        if admin_type in admins and user_id in admins[admin_type]:
-            admins[admin_type].remove(user_id)
-            self.save_data("admins", admins)
-            # Reset to user role if not in other admin lists
-            self._update_user_role_from_admins(user_id)
-            return True
+        if admin_type in admins:
+            # Find and remove the admin entry
+            admin_list = admins[admin_type]
+            for i, admin_entry in enumerate(admin_list):
+                if admin_entry.get("user_id") == user_id:
+                    admin_list.pop(i)
+                    self.save_data("admins", admins)
+                    # Reset to user role if not in other admin lists
+                    self._update_user_role_from_admins(user_id)
+                    return True
         return False
 
     def _update_user_role_from_admins(self, user_id: int):
@@ -359,7 +366,11 @@ class JSONDatabase:
         }
 
         for role_type in role_hierarchy:
-            if user_id in admins.get(role_type, []):
+            admin_list = admins.get(role_type, [])
+            if any(
+                (admin if isinstance(admin, int) else admin.get("user_id", 0)) == user_id
+                for admin in admin_list
+            ):
                 self.set_user_role(user_id, role_map[role_type])
                 return
 
@@ -371,11 +382,19 @@ class JSONDatabase:
         admins = self.load_data("admins")
 
         if admin_type:
-            return user_id in admins.get(admin_type, [])
+            admin_list = admins.get(admin_type, [])
+            # Handle both old format (int) and new format (dict)
+            return any(
+                (admin if isinstance(admin, int) else admin.get("user_id", 0)) == user_id
+                for admin in admin_list
+            )
 
         # Check all admin types
         for admin_list in admins.values():
-            if user_id in admin_list:
+            if any(
+                (admin if isinstance(admin, int) else admin.get("user_id", 0)) == user_id
+                for admin in admin_list
+            ):
                 return True
         return False
 
