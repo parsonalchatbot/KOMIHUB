@@ -52,12 +52,10 @@ async def baby(message: Message):
         # Get text from command arguments
         args = message.text.split(maxsplit=1)
         if len(args) < 2:
-            await message.answer(
+            # Send initial greeting message that users can reply to
+            greeting_msg = await message.answer(
                 "👶 <b>Hi! I'm Baby!</b> 💕\n\n"
-                "To chat with me:\n"
-                "• Reply to my messages to continue chatting!\n"
-                "• Or use: /baby [your message]\n\n"
-                "First, send me a message by replying to this!"
+                "Reply to this message to start chatting with me!"
             )
             return
         user_text = args[1].strip()
