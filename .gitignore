@@ -14,3 +14,5 @@ __pycache__
 # Build tools and binaries
 tools/
 
+
+.ruff_cache/

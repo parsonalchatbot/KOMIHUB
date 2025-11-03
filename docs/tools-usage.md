@@ -1,6 +1,47 @@
 # KOMIHUB Tools Usage Guide
 
-This guide explains how to use the Go-based image processing tools built with the `advancegg` package.
+This guide explains how to use the modular Go-based image processing tools built with the `advancegg` package.
+
+## File Structure
+
+The tools are organized into separate, focused Go files:
+
+- `main.go` - Entry point and command-line interface
+- `image_processor.go` - Core image manipulation functions
+- `utils.go` - Utility functions (color parsing, etc.)
+- `arrest_command.go` - Arrest image creation functionality
+- `go.mod` - Go module configuration
+
+## Building and Running
+
+### From Source (Development)
+```bash
+cd tools
+go run main.go image_processor.go utils.go arrest_command.go [flags]
+```
+
+### Compiled Binary (Production)
+```bash
+cd tools
+go build .
+./tools [flags]
+```
+
+This Go-based image processing tools built with the `advancegg` package.
+
+### Module Dependencies
+All modules are part of the same Go package (`main`) and work together seamlessly:
+
+- **main.go** imports and uses functions from other modules
+- **image_processor.go** provides the `ImageProcessor` struct and methods
+- **utils.go** provides utility functions like color parsing
+- **arrest_command.go** provides the `CreateArrestImage` function
+
+### Compilation
+When compiling, Go automatically includes all necessary files from the same package:
+```bash
+go build .  # Automatically includes main.go, image_processor.go, utils.go, arrest_command.go
+```
 
 ## Arrest Tool
 
