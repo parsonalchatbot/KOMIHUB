@@ -17,4 +17,4 @@ __pycache__
 tools/
 
 
-.ruff_cache/
+.ruff_cache/data/
