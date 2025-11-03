@@ -11,6 +11,14 @@ async def on_user_join(chat_member: ChatMemberUpdated):
     if chat_member.chat.type not in ["group", "supergroup"]:
         return
 
+    # Check if this is actually a join event (old_chat_member should be None or different status)
+    if chat_member.old_chat_member and chat_member.old_chat_member.status in [
+        "member",
+        "administrator",
+        "creator",
+    ]:
+        return  # This is not a join event
+
     if chat_member.new_chat_member.status in ["member", "administrator", "creator"]:
         user = chat_member.new_chat_member.user
         user_id = user.id
@@ -25,7 +33,24 @@ async def on_user_join(chat_member: ChatMemberUpdated):
         db.add_user(user_id, user_data)
 
         # Log the join event
-        logger.info(lang.log_user_joined.format(user_id=user_id, chat_id=chat_id))
+        logger.info(f"User {user_id} joined chat {chat_id}")
+
+        # Send welcome message to chat (optional - can be disabled in config)
+        try:
+            welcome_msg = f"👋 <b>{user.first_name or 'User'}</b> joined the group"
+            if user.username:
+                welcome_msg += f" (@{user.username})"
+            await chat_member.bot.send_message(
+                chat_id=chat_id, text=welcome_msg, parse_mode="HTML"
+            )
+        except Exception as e:
+            logger.error(f"Failed to send welcome message: {e}")
+
+        # Also use the lang format if available
+        try:
+            logger.info(lang.log_user_joined.format(user_id=user_id, chat_id=chat_id))
+        except:
+            pass
 
         # Check if user is banned
         if db.is_banned(user_id):
