@@ -25,7 +25,8 @@ async def on_baby_reply(message: Message):
     # Get response from SimSimi API
     response = await get_simsimi_response(user_text)
 
-    await message.answer(f"👶 {response}")
+    # Reply to the user's message instead of sending a new message
+    await message.reply(f"👶 {response}")
 
 
 # Register events
