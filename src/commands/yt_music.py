@@ -22,23 +22,29 @@ def sync_progress_hook(d, progress_msg, message):
             def update_progress():
                 try:
                     progress_text = f"🎵 Downloading audio from YouTube...\n⏳ Progress: {percent}\n🚀 Speed: {speed}\n⏰ ETA: {eta}"
-                    asyncio.create_task(progress_msg.edit_text(progress_text, parse_mode="HTML"))
+                    asyncio.create_task(
+                        progress_msg.edit_text(progress_text, parse_mode="HTML")
+                    )
                 except Exception as e:
                     logger.error(f"Progress update error: {e}")
-            
+
             update_progress()
         except Exception as e:
             logger.error(f"Progress update error: {e}")
     elif d["status"] == "finished":
         try:
+
             def finish_progress():
                 try:
-                    asyncio.create_task(progress_msg.edit_text(
-                        "🎵 Download complete! Processing audio...", parse_mode="HTML"
-                    ))
+                    asyncio.create_task(
+                        progress_msg.edit_text(
+                            "🎵 Download complete! Processing audio...",
+                            parse_mode="HTML",
+                        )
+                    )
                 except Exception as e:
                     logger.error(f"Progress finish error: {e}")
-            
+
             finish_progress()
         except Exception as e:
             logger.error(f"Progress finish error: {e}")
@@ -259,7 +265,9 @@ async def yt_music_command(message: Message):
                 "outtmpl": os.path.join(tempfile.gettempdir(), "%(title)s.%(ext)s"),
                 "quiet": True,
                 "no_warnings": True,
-                "progress_hooks": [lambda d: sync_progress_hook(d, progress_msg, message)],
+                "progress_hooks": [
+                    lambda d: sync_progress_hook(d, progress_msg, message)
+                ],
             }
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:

@@ -13,7 +13,7 @@ def load_events():
         if filename.endswith(".py") and filename != "__init__.py":
             module_name = f"src.events.{filename[:-3]}"
             try:
-                module = importlib.import_module(module_name)
+                importlib.import_module(module_name)
                 logger.info(f"Loaded event module: {module_name}")
                 loaded_count += 1
             except ImportError as e:

@@ -127,7 +127,7 @@ class JSONDatabase:
         for filename in os.listdir(commands_dir):
             if filename.endswith(".py") and filename != "__init__.py":
                 try:
-                    module_name = f"src.commands.{filename[:-3]}"
+                    f"src.commands.{filename[:-3]}"
                     spec = importlib.util.spec_from_file_location(
                         filename[:-3], os.path.join(commands_dir, filename)
                     )
@@ -172,6 +172,42 @@ class JSONDatabase:
 
         return commands_info
 
+    def _auto_create_missing_file(self, db_name: str):
+        """Auto-create missing or corrupted database files"""
+        logger.info(f"Auto-creating missing/corrupted database file: {db_name}")
+
+        if db_name == "bot_stats":
+            self.save_data(
+                "bot_stats",
+                {
+                    "bot_name": "Komihub Bot",
+                    "started_at": time.time(),
+                    "total_commands": 0,
+                    "total_users": 0,
+                    "online_since": time.time(),
+                    "version": "1.0.0",
+                },
+            )
+        elif db_name == "users":
+            self.save_data("users", {})
+        elif db_name == "admins":
+            self.save_data(
+                "admins",
+                {
+                    "owner": [6122160777],  # From config
+                    "admins": [],
+                    "elders": [],
+                    "gc_admins": [],  # Group chat admins
+                    "ch_admins": [],  # Channel admins
+                },
+            )
+        elif db_name == "bans":
+            self.save_data("bans", {})
+        elif db_name == "disabled_commands":
+            self.save_data("disabled_commands", [])
+        elif db_name == "command_stats":
+            self.save_data("command_stats", {})
+
     def get_bot_info(self):
         """Get bot-specific information"""
         bot_username = self._get_bot_username()
@@ -209,6 +245,9 @@ class JSONDatabase:
                 backup_path = f"{self.files[db_name]}.backup"
                 os.rename(self.files[db_name], backup_path)
                 logger.warning(f"Backed up corrupted {db_name} to {backup_path}")
+
+            # Auto-create missing or corrupted files
+            self._auto_create_missing_file(db_name)
             return {}
 
     def save_data(self, db_name: str, data: Dict[str, Any]) -> bool:

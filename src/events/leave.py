@@ -8,7 +8,7 @@ lang = get_lang()
 async def on_user_left(chat_member: ChatMemberUpdated):
     """Handle user leaving a group chat"""
     # Only handle group chats
-    if chat_member.chat.type not in ['group', 'supergroup']:
+    if chat_member.chat.type not in ["group", "supergroup"]:
         return
 
     if chat_member.new_chat_member.status == "left":

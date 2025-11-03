@@ -1,6 +1,5 @@
 from core import Message, command, logger, get_lang
 from core.database import db
-from core.config import config
 from aiogram.exceptions import TelegramBadRequest
 
 lang = get_lang()
@@ -52,11 +51,13 @@ async def ban(message: Message):
             target_input = args[1]
 
             # Try to get user by username or ID
-            if target_input.startswith('@'):
+            if target_input.startswith("@"):
                 # Username lookup
                 username = target_input[1:]  # Remove @
                 try:
-                    chat_member = await message.bot.get_chat_member(message.chat.id, target_input)
+                    chat_member = await message.bot.get_chat_member(
+                        message.chat.id, target_input
+                    )
                     target_user = chat_member.user
                 except Exception:
                     await message.answer(f"User @{username} not found in this chat.")
@@ -65,7 +66,9 @@ async def ban(message: Message):
                 # Assume it's a user ID
                 target_user_id = int(target_input)
                 try:
-                    chat_member = await message.bot.get_chat_member(message.chat.id, target_user_id)
+                    chat_member = await message.bot.get_chat_member(
+                        message.chat.id, target_user_id
+                    )
                     target_user = chat_member.user
                 except Exception:
                     await message.answer("User not found in this chat.")
@@ -130,11 +133,13 @@ async def unban(message: Message):
             target_input = args[1]
 
             # Try to get user by username or ID
-            if target_input.startswith('@'):
+            if target_input.startswith("@"):
                 # Username lookup
                 username = target_input[1:]  # Remove @
                 try:
-                    chat_member = await message.bot.get_chat_member(message.chat.id, target_input)
+                    chat_member = await message.bot.get_chat_member(
+                        message.chat.id, target_input
+                    )
                     target_user = chat_member.user
                 except Exception:
                     await message.answer(f"User @{username} not found in this chat.")
@@ -143,7 +148,15 @@ async def unban(message: Message):
                 # Assume it's a user ID
                 target_user_id = int(target_input)
                 # Create a minimal user object since we don't need full info for unbanning
-                target_user = type('User', (), {'id': target_user_id, 'first_name': f'User {target_user_id}', 'last_name': ''})()
+                target_user = type(
+                    "User",
+                    (),
+                    {
+                        "id": target_user_id,
+                        "first_name": f"User {target_user_id}",
+                        "last_name": "",
+                    },
+                )()
         except ValueError:
             await message.answer("Invalid user ID or username format.")
             return
@@ -186,7 +199,9 @@ async def ban_info(message: Message):
                 message.chat.id, message.from_user.id
             )
             if user_member.status not in ["administrator", "creator"]:
-                await message.answer("❌ You don't have rights to view ban information.")
+                await message.answer(
+                    "❌ You don't have rights to view ban information."
+                )
                 return
         except Exception:
             await message.answer(lang.unknown_error)
@@ -202,9 +217,9 @@ async def ban_info(message: Message):
         ban_data = db.get_ban_info(target_user_id)
 
         if ban_data:
-            banned_at = ban_data.get('banned_at', 0)
-            reason = ban_data.get('reason', 'No reason provided')
-            banned_by = ban_data.get('banned_by', 'Unknown')
+            banned_at = ban_data.get("banned_at", 0)
+            reason = ban_data.get("reason", "No reason provided")
+            banned_by = ban_data.get("banned_by", "Unknown")
 
             await message.answer(
                 f"🚫 <b>Ban Information</b>\n\n"

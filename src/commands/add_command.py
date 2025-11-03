@@ -282,7 +282,7 @@ async def add_command(message: Message):
 
         # Try to load and register the new command safely
         try:
-            module_name = f"src.commands.{filename[:-3]}"
+            f"src.commands.{filename[:-3]}"
             spec = importlib.util.spec_from_file_location(filename[:-3], filepath)
             module = importlib.util.module_from_spec(spec)
 

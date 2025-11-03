@@ -35,7 +35,7 @@ async def kick(message: Message):
     # Get target user
     if message.reply_to_message:
         target_user = message.reply_to_message.from_user
-        reason = (
+        (
             message.text.split(" ", 1)[1]
             if len(message.text.split(" ", 1)) > 1
             else "No reason provided"
@@ -51,7 +51,7 @@ async def kick(message: Message):
                 message.chat.id, target_user_id
             )
             target_user = target_user.user
-            reason = " ".join(args[2:]) if len(args) > 2 else "No reason provided"
+            " ".join(args[2:]) if len(args) > 2 else "No reason provided"
         except (ValueError, Exception):
             await message.answer(lang.unknown_command)
             return

@@ -54,11 +54,13 @@ async def add_admin(message: Message):
                 admin_type = "admins"  # Fallback
 
             # Try to get user by username or ID
-            if target_input.startswith('@'):
+            if target_input.startswith("@"):
                 # Username lookup
                 username = target_input[1:]  # Remove @
                 try:
-                    chat_member = await message.bot.get_chat_member(message.chat.id, target_input)
+                    chat_member = await message.bot.get_chat_member(
+                        message.chat.id, target_input
+                    )
                     target_user = chat_member.user
                     target_user_id = target_user.id
                 except Exception:
@@ -68,7 +70,15 @@ async def add_admin(message: Message):
                 # Assume it's a user ID
                 target_user_id = int(target_input)
                 # Create a minimal user object since we don't need full info for adding admin
-                target_user = type('User', (), {'id': target_user_id, 'first_name': f'User {target_user_id}', 'last_name': ''})()
+                target_user = type(
+                    "User",
+                    (),
+                    {
+                        "id": target_user_id,
+                        "first_name": f"User {target_user_id}",
+                        "last_name": "",
+                    },
+                )()
         except ValueError:
             await message.answer("Invalid user ID or username format.")
             return
@@ -138,11 +148,13 @@ async def remove_admin(message: Message):
                 admin_type = "admins"  # Fallback
 
             # Try to get user by username or ID
-            if target_input.startswith('@'):
+            if target_input.startswith("@"):
                 # Username lookup
                 username = target_input[1:]  # Remove @
                 try:
-                    chat_member = await message.bot.get_chat_member(message.chat.id, target_input)
+                    chat_member = await message.bot.get_chat_member(
+                        message.chat.id, target_input
+                    )
                     target_user = chat_member.user
                     target_user_id = target_user.id
                 except Exception:
@@ -152,7 +164,15 @@ async def remove_admin(message: Message):
                 # Assume it's a user ID
                 target_user_id = int(target_input)
                 # Create a minimal user object since we don't need full info for removing admin
-                target_user = type('User', (), {'id': target_user_id, 'first_name': f'User {target_user_id}', 'last_name': ''})()
+                target_user = type(
+                    "User",
+                    (),
+                    {
+                        "id": target_user_id,
+                        "first_name": f"User {target_user_id}",
+                        "last_name": "",
+                    },
+                )()
         except ValueError:
             await message.answer("Invalid user ID or username format.")
             return
@@ -221,12 +241,16 @@ async def list_admins(message: Message):
 async def add_admin_gc(message: Message):
     """Add group chat admin - only owner and existing gc_admins can use this"""
     # Check if user is owner or gc_admin
-    if message.from_user.id != config.ADMIN_ID and not db.is_admin(message.from_user.id, "gc_admins"):
-        await message.answer("❌ This command is only available to the owner or group chat admins.")
+    if message.from_user.id != config.ADMIN_ID and not db.is_admin(
+        message.from_user.id, "gc_admins"
+    ):
+        await message.answer(
+            "❌ This command is only available to the owner or group chat admins."
+        )
         return
 
     # Check if this is a group chat
-    if message.chat.type not in ['group', 'supergroup']:
+    if message.chat.type not in ["group", "supergroup"]:
         await message.answer("❌ This command can only be used in group chats.")
         return
 
@@ -251,11 +275,13 @@ async def add_admin_gc(message: Message):
             target_input = args[1]
 
             # Try to get user by username or ID
-            if target_input.startswith('@'):
+            if target_input.startswith("@"):
                 # Username lookup
                 username = target_input[1:]  # Remove @
                 try:
-                    chat_member = await message.bot.get_chat_member(message.chat.id, target_input)
+                    chat_member = await message.bot.get_chat_member(
+                        message.chat.id, target_input
+                    )
                     target_user = chat_member.user
                 except Exception:
                     await message.answer(f"User @{username} not found in this chat.")
@@ -264,7 +290,9 @@ async def add_admin_gc(message: Message):
                 # Assume it's a user ID
                 target_user_id = int(target_input)
                 try:
-                    chat_member = await message.bot.get_chat_member(message.chat.id, target_user_id)
+                    chat_member = await message.bot.get_chat_member(
+                        message.chat.id, target_user_id
+                    )
                     target_user = chat_member.user
                 except Exception:
                     await message.answer("User not found in this group chat.")
@@ -292,12 +320,16 @@ async def add_admin_gc(message: Message):
 async def remove_admin_gc(message: Message):
     """Remove group chat admin - only owner and existing gc_admins can use this"""
     # Check if user is owner or gc_admin
-    if message.from_user.id != config.ADMIN_ID and not db.is_admin(message.from_user.id, "gc_admins"):
-        await message.answer("❌ This command is only available to the owner or group chat admins.")
+    if message.from_user.id != config.ADMIN_ID and not db.is_admin(
+        message.from_user.id, "gc_admins"
+    ):
+        await message.answer(
+            "❌ This command is only available to the owner or group chat admins."
+        )
         return
 
     # Check if this is a group chat
-    if message.chat.type not in ['group', 'supergroup']:
+    if message.chat.type not in ["group", "supergroup"]:
         await message.answer("❌ This command can only be used in group chats.")
         return
 
@@ -322,11 +354,13 @@ async def remove_admin_gc(message: Message):
             target_input = args[1]
 
             # Try to get user by username or ID
-            if target_input.startswith('@'):
+            if target_input.startswith("@"):
                 # Username lookup
                 username = target_input[1:]  # Remove @
                 try:
-                    chat_member = await message.bot.get_chat_member(message.chat.id, target_input)
+                    chat_member = await message.bot.get_chat_member(
+                        message.chat.id, target_input
+                    )
                     target_user = chat_member.user
                 except Exception:
                     await message.answer(f"User @{username} not found in this chat.")
@@ -335,7 +369,9 @@ async def remove_admin_gc(message: Message):
                 # Assume it's a user ID
                 target_user_id = int(target_input)
                 try:
-                    chat_member = await message.bot.get_chat_member(message.chat.id, target_user_id)
+                    chat_member = await message.bot.get_chat_member(
+                        message.chat.id, target_user_id
+                    )
                     target_user = chat_member.user
                 except Exception:
                     await message.answer("User not found in this group chat.")

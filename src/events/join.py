@@ -8,7 +8,7 @@ lang = get_lang()
 async def on_user_join(chat_member: ChatMemberUpdated):
     """Handle user joining a group chat"""
     # Only handle group chats
-    if chat_member.chat.type not in ['group', 'supergroup']:
+    if chat_member.chat.type not in ["group", "supergroup"]:
         return
 
     if chat_member.new_chat_member.status in ["member", "administrator", "creator"]:
@@ -31,7 +31,9 @@ async def on_user_join(chat_member: ChatMemberUpdated):
         if db.is_banned(user_id):
             try:
                 await chat_member.bot.ban_chat_member(chat_id, user_id)
-                logger.info(f"Auto-banned previously banned user {user_id} in chat {chat_id}")
+                logger.info(
+                    f"Auto-banned previously banned user {user_id} in chat {chat_id}"
+                )
             except Exception as e:
                 logger.error(f"Failed to auto-ban user {user_id}: {e}")
 

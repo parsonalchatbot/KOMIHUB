@@ -14,7 +14,7 @@ def load_commands():
         if filename.endswith(".py") and filename != "__init__.py":
             module_name = f"src.commands.{filename[:-3]}"
             try:
-                module = importlib.import_module(module_name)
+                importlib.import_module(module_name)
                 logger.info(f"Loaded command module: {module_name}")
                 loaded_count += 1
             except ImportError as e:

@@ -19,24 +19,29 @@ def sync_progress_hook(d, progress_msg, message):
             def update_progress():
                 try:
                     progress_text = f"🎵 Downloading: <b>{progress_msg.text.split('Downloading:')[1].split('\\n')[0].strip()}</b>\n⏳ Progress: {percent}\n🚀 Speed: {speed}\n⏰ ETA: {eta}"
-                    asyncio.create_task(progress_msg.edit_text(progress_text, parse_mode="HTML"))
+                    asyncio.create_task(
+                        progress_msg.edit_text(progress_text, parse_mode="HTML")
+                    )
                 except Exception as e:
                     logger.error(f"Progress update error: {e}")
-            
+
             update_progress()
         except Exception as e:
             logger.error(f"Progress update error: {e}")
     elif d["status"] == "finished":
         try:
+
             def finish_progress():
                 try:
-                    asyncio.create_task(progress_msg.edit_text(
-                        f"🎵 Download complete! Processing audio...\n{progress_msg.text.split('\\n')[0]}",
-                        parse_mode="HTML",
-                    ))
+                    asyncio.create_task(
+                        progress_msg.edit_text(
+                            f"🎵 Download complete! Processing audio...\n{progress_msg.text.split('\\n')[0]}",
+                            parse_mode="HTML",
+                        )
+                    )
                 except Exception as e:
                     logger.error(f"Progress finish error: {e}")
-            
+
             finish_progress()
         except Exception as e:
             logger.error(f"Progress finish error: {e}")
@@ -179,7 +184,7 @@ async def handle_song_reply(message: Message):
                     yt_music_command.cache.pop(message.from_user.id, None)
                 if hasattr(song_command, "cache"):
                     song_command.cache.pop(message.from_user.id, None)
-                
+
                 # Auto-unsend the search results message
                 try:
                     await message.reply_to_message.delete()
