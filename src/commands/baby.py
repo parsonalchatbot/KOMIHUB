@@ -41,25 +41,17 @@ async def baby(message: Message):
         lang.log_command_executed.format(command="baby", user_id=message.from_user.id)
     )
 
-    # Check if this is a reply to bot's baby message
-    if message.reply_to_message and message.reply_to_message.from_user.id == message.bot.id:
-        # Extract the user's message from the reply
-        user_text = message.text.strip()
-        if not user_text:
-            await message.answer("Please tell baby what you want to say! 💕")
-            return
-    else:
-        # Get text from command arguments
-        args = message.text.split(maxsplit=1)
-        if len(args) < 2:
-            # Send initial greeting message that users can reply to
-            greeting_msg = await message.answer(
-                "👶 <b>Hi! I'm Baby!</b> 💕\n\n"
-                "Reply to this message to start chatting with me!"
-            )
-            return
-        user_text = args[1].strip()
+    # Get text from command arguments
+    args = message.text.split(maxsplit=1)
+    if len(args) < 2:
+        # Send initial greeting message that users can reply to
+        greeting_msg = await message.answer(
+            "👶 <b>Hi! I'm Baby!</b> 💕\n\n"
+            "Reply to this message to start chatting with me!"
+        )
+        return
 
+    user_text = args[1].strip()
     if not user_text:
         await message.answer("Please tell baby something! 💕")
         return
