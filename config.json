@@ -1,0 +1,41 @@
+{
+  "bot": {
+    "token": "YOUR_BOT_TOKEN_HERE",
+    "name": "KOMIHUB BOT",
+    "admin_id": 6122160777,
+    "admin_name": "EJ"
+  },
+  "features": {
+    "auto_update": true,
+    "update_check_interval": 3600,
+    "maintenance_mode": false,
+    "user_tracking": true,
+    "broadcast_system": true,
+    "admin_management": true,
+    "hot_reload": true
+  },
+  "apis": {
+    "version_url": "YOUR_VERSION_URL_HERE",
+    "github_repo": "GrandpaEJ/KOMIHUB",
+    "yt_api_key": "YOUR_YOUTUBE_API_KEY_HERE"
+  },
+  "database": {
+    "data_dir": "data",
+    "backup_enabled": true,
+    "backup_interval": 86400
+  },
+  "logging": {
+    "level": "INFO",
+    "file_logging": true,
+    "console_logging": true
+  },
+  "performance": {
+    "max_workers": 4,
+    "timeout": 30,
+    "rate_limit": {
+      "enabled": true,
+      "max_requests": 100,
+      "window_seconds": 60
+    }
+  }
+}

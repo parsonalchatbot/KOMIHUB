@@ -1,5 +1,7 @@
--e # Sensitive configuration files
+# Sensitive configuration files
 config.py
+.env
+# config.json - can be shared but with placeholder values
 
 # Web API files
 web_api/
