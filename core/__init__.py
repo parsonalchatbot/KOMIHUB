@@ -11,6 +11,27 @@ from .lang import get_lang
 from .handler import commands as cmd_handler
 from .handler import message as msg_handler
 
+# Import config and expose it for backward compatibility
+try:
+    # Import config module to make it available
+    import sys
+    import os
+    
+    # Add current directory to path if not already there
+    current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if current_dir not in sys.path:
+        sys.path.append(current_dir)
+    
+    import config as config_module
+    
+    # Export config for backward compatibility with image commands
+    config = config_module
+    
+except ImportError as e:
+    # Fallback if config import fails
+    logger.warning(f"Could not import config module: {e}")
+    config = None
+
 # Global dispatcher instance
 dp = Dispatcher()
 
