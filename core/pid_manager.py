@@ -150,27 +150,37 @@ class PIDManager:
         
         return killed_count
 
-    def wait_for_port_free(self, port: int = 8000, timeout: int = 10) -> bool:
-        """Wait for a port to be free"""
-        logger.info(f"Waiting for port {port} to be free...")
+    def wait_for_port_free(self, port: int = 8000, timeout: int = 5) -> bool:
+        """Wait for a port to be free with proper error handling"""
+        logger.info(f"Waiting for port {port} to be free (max {timeout} seconds)...")
         start_time = time.time()
         
         while time.time() - start_time < timeout:
             try:
+                # Set socket timeout to prevent hanging
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(1.0)  # 1 second timeout for connect
+                
                 result = sock.connect_ex(('localhost', port))
                 sock.close()
                 
                 if result != 0:  # Port is free
-                    logger.info(f"Port {port} is now free")
+                    logger.info(f"✅ Port {port} is now free")
                     return True
+                else:
+                    logger.debug(f"Port {port} still in use, waiting...")
                     
-                time.sleep(0.5)
+            except socket.timeout:
+                logger.debug(f"Socket timeout on port {port}, continuing...")
+                continue
             except Exception as e:
                 logger.debug(f"Error checking port {port}: {e}")
-                return True  # Assume it's free if we can't check
+                # If we can't check, assume it's free
+                return True
+            
+            time.sleep(0.5)
         
-        logger.warning(f"Port {port} still in use after {timeout} seconds")
+        logger.warning(f"⏰ Port {port} still in use after {timeout} seconds, continuing anyway...")
         return False
 
     def cleanup_old_instances(self) -> int:
@@ -186,16 +196,18 @@ class PIDManager:
                         cmdline = proc.info["cmdline"] or []
                         cmdline_str = " ".join(cmdline)
                         
-                        # Check for bot processes
+                        # Check for bot processes - include app.py as well
                         if ("main.py" in cmdline_str or "src/web_server.py" in cmdline_str or
-                            "web_server.py" in cmdline_str or "uvicorn" in cmdline_str) and proc.info["pid"] != current_pid:
+                            "web_server.py" in cmdline_str or "app.py" in cmdline_str or
+                            "uvicorn" in cmdline_str) and proc.info["pid"] != current_pid:
                             
                             logger.info(f"Killing old bot/server instance: PID {proc.info['pid']} - {cmdline_str}")
-                            proc.terminate()
                             try:
+                                proc.terminate()
                                 proc.wait(timeout=3)
                                 killed_count += 1
                             except psutil.TimeoutExpired:
+                                logger.warning(f"Process didn't terminate, force killing PID {proc.info['pid']}")
                                 proc.kill()
                                 proc.wait()
                                 killed_count += 1
