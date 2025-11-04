@@ -6,14 +6,14 @@ import config
 lang = get_lang()
 
 
-def help():
-    return {
-        "name": "reload",
-        "version": "0.0.1",
-        "description": "Hot reload all commands and events",
-        "author": "Komihub",
-        "usage": "/reload",
-    }
+# def help():
+#     return {
+#         "name": "reload",
+#         "version": "0.0.1",
+#         "description": "Hot reload all commands and events",
+#         "author": "Komihub",
+#         "usage": "/reload",
+#     }
 
 
 @command("reload")
