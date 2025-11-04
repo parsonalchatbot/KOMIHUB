@@ -3,19 +3,20 @@ import os
 import sys
 import subprocess
 import time
+import threading
 from core.pid_manager import pid_manager
 
 lang = get_lang()
 
 
-def help():
-    return {
-        "name": "restart",
-        "version": "2.0.0",
-        "description": "Restart the entire bot application (enhanced with proper process management)",
-        "author": "Komihub",
-        "usage": "/restart",
-    }
+# def help():
+#     return {
+#         "name": "restart",
+#         "version": "2.0.0",
+#         "description": "Restart the entire bot application (enhanced with proper process management)",
+#         "author": "Komihub",
+#         "usage": "/restart",
+#     }
 
 
 def start_bot_process():
@@ -32,6 +33,9 @@ def start_bot_process():
         new_env['PYTHONPATH'] = f"{cwd}:{new_env['PYTHONPATH']}"
     else:
         new_env['PYTHONPATH'] = cwd
+    
+    # Add restart environment variable to distinguish new instances
+    new_env['BOT_RESTART_INSTANCE'] = str(os.getpid())
     
     restart_cmd = [python_exe, script_path]
     logger.info(f"Starting new bot process: {restart_cmd}")
@@ -50,6 +54,27 @@ def start_bot_process():
     except Exception as e:
         logger.error(f"Failed to start process: {e}")
         raise
+
+
+def monitor_process_health(process, timeout=10):
+    """Monitor if a process starts successfully"""
+    start_time = time.time()
+    
+    while time.time() - start_time < timeout:
+        if process.poll() is not None:
+            # Process exited
+            return False, f"Process exited with code {process.returncode}"
+        
+        # Check if process is still running
+        try:
+            if process.returncode is not None:
+                return False, f"Process failed with return code {process.returncode}"
+        except:
+            pass
+        
+        time.sleep(0.5)
+    
+    return process.poll() is None, "Process still running"
 
 
 @command("restart")
@@ -75,11 +100,6 @@ async def restart(message: Message):
         # Get hosting mode
         hosting_mode = config.config_data.get("hosting", {}).get("mode", "polling")
         
-        restart_msg = await restart_msg.edit_text(
-            "🔄 <b>Restarting Bot Application...</b>\n\n🧹 Killing old bot processes...",
-            parse_mode="HTML",
-        )
-
         logger.info("🚀 Two-phase restart: Starting new process FIRST...")
         
         # PHASE 1: Start new process BEFORE killing old one
@@ -93,18 +113,24 @@ async def restart(message: Message):
             new_process = start_bot_process()
             logger.info(f"✅ New process started successfully with PID: {new_process.pid}")
             
-            # Check if new process is still running immediately
-            poll_result = new_process.poll()
-            logger.info(f"🔍 Process poll result: {poll_result}")
+            # Monitor process health
+            restart_msg = await restart_msg.edit_text(
+                "🔄 <b>Restarting Bot Application...</b>\n\n✅ New instance started\n🔍 Checking health...",
+                parse_mode="HTML",
+            )
             
-            if poll_result is not None:
-                exit_code = new_process.returncode
+            is_healthy, status_msg = monitor_process_health(new_process, timeout=15)
+            
+            if not is_healthy:
                 await restart_msg.edit_text(
-                    f"❌ <b>New process failed immediately!</b>\n\nExit code: {exit_code}\n⏳ Checking logs...",
+                    f"❌ <b>New process failed to start!</b>\n\n{status_msg}",
                     parse_mode="HTML",
                 )
-                logger.error(f"New process failed immediately with exit code {exit_code}")
+                logger.error(f"New process health check failed: {status_msg}")
                 return
+
+            logger.info("✅ New process passed health check")
+            logger.info(f"🔍 Process poll result: {new_process.poll()}")
 
         except Exception as e:
             await restart_msg.edit_text(
@@ -119,7 +145,7 @@ async def restart(message: Message):
         # PHASE 2: Now kill old processes (but only others, not ourselves)
         logger.info("🧹 Now killing old processes (excluding ourselves)...")
         restart_msg = await restart_msg.edit_text(
-            "🔄 <b>Restarting Bot Application...</b>\n\n🚀 New instance started\n🧹 Stopping old instance...",
+            "🔄 <b>Restarting Bot Application...</b>\n\n🚀 New instance healthy\n🧹 Stopping old instance...",
             parse_mode="HTML",
         )
 
@@ -130,7 +156,7 @@ async def restart(message: Message):
         except Exception as e:
             logger.error(f"❌ Failed to kill processes: {e}")
             await restart_msg.edit_text(
-                f"❌ <b>Failed to kill old processes!</b>\n\nError: {e}",
+                f"⚠️ <b>Warning:</b> Failed to kill some processes\n\nError: {e}",
                 parse_mode="HTML",
             )
             # Don't return - new process is already running
@@ -139,7 +165,7 @@ async def restart(message: Message):
         pid_manager.save_bot_pid(new_process.pid)
         logger.info(f"✅ Saved new bot PID: {new_process.pid}")
         
-        # Verify both processes
+        # Final verification
         if new_process.poll() is None:
             await restart_msg.edit_text(
                 f"✅ <b>Bot Restarted Successfully!</b>\n\n🔄 New instance is now running.\n📊 PID: {new_process.pid}\n🌐 Mode: {hosting_mode.upper()}",
@@ -156,53 +182,10 @@ async def restart(message: Message):
             # New process has exited
             exit_code = new_process.returncode
             await restart_msg.edit_text(
-                f"❌ <b>New process exited!</b>\n\nExit code: {exit_code}",
-                parse_mode="HTML",
-            )
-            logger.error(f"New process exited with code {exit_code}")
-
-        # Wait for the new process to initialize
-        restart_msg = await restart_msg.edit_text(
-            "🔄 <b>Restarting Bot Application...</b>\n\n⏳ Waiting for new instance to start...\n📊 New PID: {}".format(new_process.pid),
-            parse_mode="HTML",
-        )
-        time.sleep(5)
-
-        # Check if new process is still running
-        if new_process.poll() is None:
-            # Process is still running
-            time.sleep(2)
-
-            await restart_msg.edit_text(
-                f"✅ <b>Bot Restarted Successfully!</b>\n\n🔄 New instance is now running.\n📊 PID: {new_process.pid}\n🌐 Mode: {hosting_mode.upper()}\n⏹️ Shutting down old instance...",
-                parse_mode="HTML",
-            )
-
-            # Give a moment for the message to be seen
-            time.sleep(1)
-
-            # Stop the bot polling before exiting
-            try:
-                from core.bot import bot_instance
-                if hasattr(bot_instance, 'dp'):
-                    await bot_instance.dp.stop_polling()
-            except Exception as e:
-                logger.warning(f"Error stopping bot polling: {e}")
-
-            # Exit current process gracefully
-            logger.info("Shutting down current bot process for restart")
-            os._exit(0)
-        else:
-            # Process has exited
-            exit_code = new_process.returncode
-            await restart_msg.edit_text(
-                f"❌ <b>Restart Failed!</b>\n\nNew process exited with code: {exit_code}\n📄 Check logs for details",
+                f"❌ <b>Restart Failed!</b>\n\nNew process exited with code: {exit_code}",
                 parse_mode="HTML",
             )
             logger.error(f"Restart failed: New process exited with code {exit_code}")
-            logger.error(f"Process command line: {' '.join(new_process.args) if hasattr(new_process, 'args') else 'Unknown'}")
-            logger.error(f"Working directory: {os.getcwd()}")
-            logger.error(f"Environment vars: {dict(os.environ)}")
 
     except Exception as e:
         logger.error(f"Restart error: {e}")
