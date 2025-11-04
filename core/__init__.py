@@ -25,7 +25,7 @@ try:
     import config as config_module
     
     # Export config for backward compatibility with image commands
-    config = config_module
+    config = config_module.config
     
 except ImportError as e:
     # Fallback if config import fails

@@ -33,26 +33,26 @@ async def img_ai2_command(message: Message):
     args = message.text.split()[1:]  # Remove /img_ai2
     
     if len(args) == 0:
-        usage_text = """🎨 **Animagine AI Image Generator**
+        usage_text = """🎨 <b>Animagine AI Image Generator</b>
 
 Generate high-quality AI images using Animagine API!
 
-**Usage:**
+<b>Usage:</b>
 /img_ai2 [prompt] [ratio]
 
-**Examples:**
+<b>Examples:</b>
 /img_ai2 komi san
-/img_ai2 cute anime girl 16:9  
+/img_ai2 cute anime girl 16:9
 /img_ai2 futuristic city 1:1
 
-**Available Ratios:**
+<b>Available Ratios:</b>
 • 16:9 (widescreen)
-• 9:16 (portrait) 
+• 9:16 (portrait)
 • 1:1 (square)
 • 4:3 (classic)
 
-**Note:** Ratio is optional, defaults to 1:1! 🌟"""
-        await message.answer(usage_text)
+<b>Note:</b> Ratio is optional, defaults to 1:1! 🌟"""
+        await message.answer(usage_text, parse_mode="HTML")
         return
 
     # Extract prompt and optional ratio
@@ -113,16 +113,16 @@ Generate high-quality AI images using Animagine API!
                                 temp_file.close()
                                 
                                 # Send the image
-                                caption_text = f"🎨 **Animagine Generated**\n\n🎯 **Prompt:** {prompt}\n📐 **Ratio:** {ratio}"
-                                
+                                caption_text = f"🎨 <b>Animagine Generated</b>\n\n🎯 <b>Prompt:</b> {prompt}\n📐 <b>Ratio:</b> {ratio}"
+
                                 # Use SFW spoiler setting for AI generated images
                                 spoiler = config.image_spoiler.sfw_enabled if hasattr(config.image_spoiler, 'sfw_enabled') else True
-                                
+
                                 with open(temp_file.name, 'rb') as f:
                                     await message.answer_photo(
                                         photo=FSInputFile(temp_file.name),
                                         caption=caption_text,
-                                        parse_mode="Markdown",
+                                        parse_mode="HTML",
                                         has_spoiler=spoiler
                                     )
                                 

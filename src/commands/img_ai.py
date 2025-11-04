@@ -33,20 +33,20 @@ async def img_ai_command(message: Message):
     args = message.text.split()[1:]  # Remove /img_ai
     
     if len(args) == 0:
-        usage_text = """🪄 **Magic AI Image Generator**
+        usage_text = """🪄 <b>Magic AI Image Generator</b>
 
 Generate AI images using advanced Magic API!
 
-**Usage:**
+<b>Usage:</b>
 /img_ai [prompt]
 
-**Examples:**
+<b>Examples:</b>
 /img_ai cute anime girl
-/img_ai sunset landscape  
+/img_ai sunset landscape
 /img_ai futuristic city
 
-**Note:** Be detailed for the best results! 🌟"""
-        await message.answer(usage_text)
+<b>Note:</b> Be detailed for the best results! 🌟"""
+        await message.answer(usage_text, parse_mode="HTML")
         return
 
     # Join all arguments to form the prompt
@@ -85,16 +85,16 @@ Generate AI images using advanced Magic API!
                     temp_file.close()
                     
                     # Send the image
-                    caption_text = f"🪄 **Magic AI Generated**\n\n🎨 **Prompt:** {prompt}"
-                    
+                    caption_text = f"🪄 <b>Magic AI Generated</b>\n\n🎨 <b>Prompt:</b> {prompt}"
+
                     # Use SFW spoiler setting for AI generated images
                     spoiler = config.image_spoiler.sfw_enabled if hasattr(config.image_spoiler, 'sfw_enabled') else True
-                    
+
                     with open(temp_file.name, 'rb') as f:
                         await message.answer_photo(
                             photo=FSInputFile(temp_file.name),
                             caption=caption_text,
-                            parse_mode="Markdown",
+                            parse_mode="HTML",
                             has_spoiler=spoiler
                         )
                     

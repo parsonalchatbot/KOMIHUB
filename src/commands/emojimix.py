@@ -33,20 +33,20 @@ async def emojimix_command(message: Message):
     args = message.text.split()[1:]  # Remove /emojimix
     
     if len(args) == 0:
-        usage_text = """🎨 **EmojiMix Command**
+        usage_text = """🎨 <b>EmojiMix Command</b>
 
 Mix two emojis into a combined image!
 
-**Usage:**
+<b>Usage:</b>
 /emojimix [emoji1] [emoji2]
 
-**Examples:**
+<b>Examples:</b>
 /emojimix 😃🫩
 /emojimix 😃 🫩
 /emojimix ❤️ 🎉
 
-**Note:** You can use emojis with or without spaces between them!"""
-        await message.answer(usage_text)
+<b>Note:</b> You can use emojis with or without spaces between them!"""
+        await message.answer(usage_text, parse_mode="HTML")
         return
 
     # Extract emojis from arguments

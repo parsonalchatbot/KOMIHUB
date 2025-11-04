@@ -33,20 +33,20 @@ async def dalle_command(message: Message):
     args = message.text.split()[1:]  # Remove /dalle
     
     if len(args) == 0:
-        usage_text = """🎨 **DALL-E Image Generator**
+        usage_text = """🎨 <b>DALL-E Image Generator</b>
 
 Generate AI images from text descriptions!
 
-**Usage:**
+<b>Usage:</b>
 /dalle [prompt]
 
-**Examples:**
+<b>Examples:</b>
 /dalle komi san
-/dalle sunset over mountains  
+/dalle sunset over mountains
 /dalle cute robot in space
 
-**Note:** Be specific for better results! 🌟"""
-        await message.answer(usage_text)
+<b>Note:</b> Be specific for better results! 🌟"""
+        await message.answer(usage_text, parse_mode="HTML")
         return
 
     # Join all arguments to form the prompt
@@ -78,7 +78,7 @@ Generate AI images from text descriptions!
                         
                         # Send all images as a batch (media group)
                         images = data["images"]
-                        caption_text = f"🎨 Generated images for: **{prompt}**\n📸 {len(images)} images created"
+                        caption_text = f"🎨 Generated images for: <b>{prompt}</b>\n📸 {len(images)} images created"
                         
                         # Download all images and send as media group
                         import tempfile
@@ -110,7 +110,7 @@ Generate AI images from text descriptions!
                                             media_group.append(InputMediaPhoto(
                                                 media=FSInputFile(temp_file.name),
                                                 caption=caption_text,
-                                                parse_mode="Markdown",
+                                                parse_mode="HTML",
                                                 has_spoiler=spoiler
                                             ))
                                         else:

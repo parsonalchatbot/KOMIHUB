@@ -179,20 +179,21 @@ async def download_and_send_image(session, image_url, message, title, content_ty
                 temp_file.close()
                 
                 # Send the image
-                caption = f"📷 **{title}**\n🎌 Anime Image" if count == 1 else f"📷 **{title}**\n🎌 Anime Image {count}"
-                
+                caption = f"📷 <b>{title}</b>\n🎌 Anime Image" if count == 1 else f"📷 <b>{title}</b>\n🎌 Anime Image {count}"
+
                 # Determine if spoiler should be used
                 spoiler = False
                 if content_type.lower() == "sfw":
                     spoiler = config.image_spoiler.sfw_enabled if hasattr(config.image_spoiler, 'sfw_enabled') else True
                 elif content_type.lower() == "nsfw":
                     spoiler = config.image_spoiler.nsfw_enabled if hasattr(config.image_spoiler, 'nsfw_enabled') else True
-                
+
                 with open(temp_file.name, 'rb') as f:
                     await message.answer_photo(
                         photo=FSInputFile(temp_file.name),
                         caption=caption,
-                        has_spoiler=spoiler
+                        has_spoiler=spoiler,
+                        parse_mode="HTML"
                     )
                 
                 # Clean up temporary file
@@ -239,7 +240,7 @@ async def send_as_media_group(session, image_urls, message, title, content_type=
                         # First image gets the main caption
                         media_group.append(InputMediaPhoto(
                             media=FSInputFile(temp_file.name),
-                            caption=f"📷 **{title}**\n🎌 Anime Images",
+                            caption=f"📷 <b>{title}</b>\n🎌 Anime Images",
                             has_spoiler=spoiler
                         ))
                     else:
@@ -269,43 +270,43 @@ async def send_as_media_group(session, image_urls, message, title, content_type=
 
 def create_usage_text():
     """Create usage instructions text"""
-    return """🎌 **Anime Image Generator**
+    return """🎌 <b>Anime Image Generator</b>
 
 Get anime images from Waifu.pics API!
 
-**Usage:**
+<b>Usage:</b>
 /anime_img [category] [-number] [-sfw/nsfw]
 
-**Examples:**
+<b>Examples:</b>
 /anime_img list
 /anime_img waifu -3
 /anime_img kiss -nfw -10
 /anime_img cuddle -sfw -1
 
-**Parameters:**
-• **Category**: Choose from available categories
-• **-number**: Number of images (1-30, default: 5)
-• **-sfw/-nsfw**: Content type (default: SFW)
+<b>Parameters:</b>
+• <b>Category</b>: Choose from available categories
+• <b>-number</b>: Number of images (1-30, default: 5)
+• <b>-sfw/-nsfw</b>: Content type (default: SFW)
 
-**Note:** Use /anime_img list to see all available categories! 🌟"""
+<b>Note:</b> Use /anime_img list to see all available categories! 🌟"""
 
 
 def create_category_list():
     """Create category list text"""
     sfw_list = ", ".join(SFW_CATEGORIES)
     nsfw_list = ", ".join(NSFW_CATEGORIES)
-    
-    return f"""🎌 **Available Categories**
 
-**SFW Categories:** `{len(SFW_CATEGORIES)} available`
+    return f"""🎌 <b>Available Categories</b>
+
+<b>SFW Categories:</b> `{len(SFW_CATEGORIES)} available`
 {sfw_list}
 
-**NSFW Categories:** `{len(NSFW_CATEGORIES)} available`
+<b>NSFW Categories:</b> `{len(NSFW_CATEGORIES)} available`
 {nsfw_list}
 
-**Usage Examples:**
+<b>Usage Examples:</b>
 • /anime_img waifu -3
 • /anime_img kiss -sfw -10
 • /anime_img cuddle -sfw -1
 
-**Note:** NSFW content requires special permissions! ⚠️"""
+<b>Note:</b> NSFW content requires special permissions! ⚠️"""
