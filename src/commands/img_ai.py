@@ -1,6 +1,6 @@
 import aiohttp
 import urllib.parse
-from core import Message, command, logger, get_lang, FSInputFile
+from core import Message, command, logger, get_lang, FSInputFile, config
 
 lang = get_lang()
 
@@ -87,11 +87,15 @@ Generate AI images using advanced Magic API!
                     # Send the image
                     caption_text = f"🪄 **Magic AI Generated**\n\n🎨 **Prompt:** {prompt}"
                     
+                    # Use SFW spoiler setting for AI generated images
+                    spoiler = config.image_spoiler.sfw_enabled if hasattr(config.image_spoiler, 'sfw_enabled') else True
+                    
                     with open(temp_file.name, 'rb') as f:
                         await message.answer_photo(
                             photo=FSInputFile(temp_file.name),
                             caption=caption_text,
-                            parse_mode="Markdown"
+                            parse_mode="Markdown",
+                            has_spoiler=spoiler
                         )
                     
                     # Clean up temporary file

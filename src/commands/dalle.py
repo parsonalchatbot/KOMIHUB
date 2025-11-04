@@ -1,6 +1,6 @@
 import aiohttp
 import urllib.parse
-from core import Message, command, logger, get_lang, FSInputFile
+from core import Message, command, logger, get_lang, FSInputFile, config
 
 lang = get_lang()
 
@@ -88,6 +88,9 @@ Generate AI images from text descriptions!
                         media_group = []
                         temp_files = []  # Keep track of temp files to clean up
                         
+                        # Use SFW spoiler setting for AI generated images
+                        spoiler = config.image_spoiler.sfw_enabled if hasattr(config.image_spoiler, 'sfw_enabled') else True
+                        
                         try:
                             for i, img_url in enumerate(images, 1):
                                 # Download image
@@ -107,13 +110,15 @@ Generate AI images from text descriptions!
                                             media_group.append(InputMediaPhoto(
                                                 media=FSInputFile(temp_file.name),
                                                 caption=caption_text,
-                                                parse_mode="Markdown"
+                                                parse_mode="Markdown",
+                                                has_spoiler=spoiler
                                             ))
                                         else:
                                             # Other images get simple captions
                                             media_group.append(InputMediaPhoto(
                                                 media=FSInputFile(temp_file.name),
-                                                caption=f"🖼️ Image {i}/{len(images)}"
+                                                caption=f"🖼️ Image {i}/{len(images)}",
+                                                has_spoiler=spoiler
                                             ))
                                     
                         except Exception as e:

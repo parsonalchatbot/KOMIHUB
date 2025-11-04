@@ -50,6 +50,10 @@ def load_config() -> Dict[str, Any]:
             "github_repo": os.getenv("GITHUB_REPO"),
             "yt_api_key": os.getenv("YOUTUBE_API_KEY")
         },
+        "image_spoiler": {
+            "sfw_enabled": os.getenv("SFW_IMG_SPOILER"),
+            "nsfw_enabled": os.getenv("NSFW_IMG_SPOILER")
+        },
         "database": {
             "data_dir": os.getenv("DATA_DIR"),
             "backup_enabled": os.getenv("BACKUP_ENABLED"),
@@ -114,6 +118,10 @@ def apply_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
         },
         "apis": {
             "github_repo": "GrandpaEJ/KOMIHUB"
+        },
+        "image_spoiler": {
+            "sfw_enabled": True,
+            "nsfw_enabled": True
         },
         "database": {
             "data_dir": "data",
@@ -214,6 +222,10 @@ YOUTUBE_API_KEY = config_data["apis"]["yt_api_key"]
 VERSION_URL = config_data["apis"]["version_url"]
 GITHUB_REPO = config_data["apis"]["github_repo"]
 
+# Image spoiler settings
+SFW_IMG_SPOILER = config_data["image_spoiler"]["sfw_enabled"]
+NSFW_IMG_SPOILER = config_data["image_spoiler"]["nsfw_enabled"]
+
 def get_config() -> Dict[str, Any]:
     """Get the full configuration dictionary"""
     return config_data
@@ -225,7 +237,7 @@ def reload_config():
     global RATE_LIMIT_ENABLED, RATE_LIMIT_MAX_REQUESTS, RATE_LIMIT_WINDOW
     global AUTO_UPDATE, UPDATE_CHECK_INTERVAL, MAINTENANCE_MODE, USER_TRACKING
     global BROADCAST_SYSTEM, ADMIN_MANAGEMENT, HOT_RELOAD, YOUTUBE_API_KEY
-    global VERSION_URL, GITHUB_REPO
+    global VERSION_URL, GITHUB_REPO, SFW_IMG_SPOILER, NSFW_IMG_SPOILER
     
     config_data = load_config()
     config = Config(config_data)
@@ -261,3 +273,6 @@ def reload_config():
     YOUTUBE_API_KEY = config_data["apis"]["yt_api_key"]
     VERSION_URL = config_data["apis"]["version_url"]
     GITHUB_REPO = config_data["apis"]["github_repo"]
+    
+    SFW_IMG_SPOILER = config_data["image_spoiler"]["sfw_enabled"]
+    NSFW_IMG_SPOILER = config_data["image_spoiler"]["nsfw_enabled"]

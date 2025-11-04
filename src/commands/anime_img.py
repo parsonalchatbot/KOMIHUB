@@ -1,5 +1,5 @@
 import aiohttp
-from core import Message, command, logger, get_lang, FSInputFile
+from core import Message, command, logger, get_lang, FSInputFile, config
 
 lang = get_lang()
 
@@ -119,7 +119,7 @@ async def anime_img_command(message: Message):
                             await waiting_msg.delete()
                             
                             # Download and send image
-                            await download_and_send_image(session, data["url"], message, f"🎌 {category.title()}", limit)
+                            await download_and_send_image(session, data["url"], message, f"🎌 {category.title()}", content_type, limit)
                             logger.info(f"ANIME_IMG: Successfully sent 1 image from category {category}")
                         else:
                             await waiting_msg.edit_text("❌ No image returned. Please try again!")
@@ -143,10 +143,10 @@ async def anime_img_command(message: Message):
                             image_urls = data["files"][:limit]  # Limit to requested amount
                             
                             if len(image_urls) == 1:
-                                await download_and_send_image(session, image_urls[0], message, f"🎌 {category.title()}", len(image_urls))
+                                await download_and_send_image(session, image_urls[0], message, f"🎌 {category.title()}", content_type, len(image_urls))
                             else:
                                 # Send as media group if multiple images
-                                await send_as_media_group(session, image_urls, message, f"🎌 {category.title()} Images ({len(image_urls)} total)")
+                                await send_as_media_group(session, image_urls, message, f"🎌 {category.title()} Images ({len(image_urls)} total)", content_type)
                             
                             logger.info(f"ANIME_IMG: Successfully sent {len(image_urls)} images from category {category}")
                         else:
@@ -163,7 +163,7 @@ async def anime_img_command(message: Message):
             pass
 
 
-async def download_and_send_image(session, image_url, message, title, count=1):
+async def download_and_send_image(session, image_url, message, title, content_type="sfw", count=1):
     """Download and send a single image"""
     try:
         async with session.get(image_url) as img_resp:
@@ -181,10 +181,18 @@ async def download_and_send_image(session, image_url, message, title, count=1):
                 # Send the image
                 caption = f"📷 **{title}**\n🎌 Anime Image" if count == 1 else f"📷 **{title}**\n🎌 Anime Image {count}"
                 
+                # Determine if spoiler should be used
+                spoiler = False
+                if content_type.lower() == "sfw":
+                    spoiler = config.image_spoiler.sfw_enabled if hasattr(config.image_spoiler, 'sfw_enabled') else True
+                elif content_type.lower() == "nsfw":
+                    spoiler = config.image_spoiler.nsfw_enabled if hasattr(config.image_spoiler, 'nsfw_enabled') else True
+                
                 with open(temp_file.name, 'rb') as f:
                     await message.answer_photo(
                         photo=FSInputFile(temp_file.name),
-                        caption=caption
+                        caption=caption,
+                        has_spoiler=spoiler
                     )
                 
                 # Clean up temporary file
@@ -197,7 +205,7 @@ async def download_and_send_image(session, image_url, message, title, count=1):
         await message.answer("❌ Error sending image.")
 
 
-async def send_as_media_group(session, image_urls, message, title):
+async def send_as_media_group(session, image_urls, message, title, content_type="sfw"):
     """Send multiple images as a media group"""
     import tempfile
     import os
@@ -205,6 +213,13 @@ async def send_as_media_group(session, image_urls, message, title):
     
     media_group = []
     temp_files = []
+    
+    # Determine if spoiler should be used
+    spoiler = False
+    if content_type.lower() == "sfw":
+        spoiler = config.image_spoiler.sfw_enabled if hasattr(config.image_spoiler, 'sfw_enabled') else True
+    elif content_type.lower() == "nsfw":
+        spoiler = config.image_spoiler.nsfw_enabled if hasattr(config.image_spoiler, 'nsfw_enabled') else True
     
     try:
         for i, img_url in enumerate(image_urls, 1):
@@ -224,13 +239,15 @@ async def send_as_media_group(session, image_urls, message, title):
                         # First image gets the main caption
                         media_group.append(InputMediaPhoto(
                             media=FSInputFile(temp_file.name),
-                            caption=f"📷 **{title}**\n🎌 Anime Images"
+                            caption=f"📷 **{title}**\n🎌 Anime Images",
+                            has_spoiler=spoiler
                         ))
                     else:
                         # Other images get simple captions
                         media_group.append(InputMediaPhoto(
                             media=FSInputFile(temp_file.name),
-                            caption=f"🎌 Image {i}/{len(image_urls)}"
+                            caption=f"🎌 Image {i}/{len(image_urls)}",
+                            has_spoiler=spoiler
                         ))
                 
     except Exception as e:

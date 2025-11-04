@@ -36,6 +36,10 @@
       "enabled": true,
       "max_requests": 100,
       "window_seconds": 60
+    },
+    "image_spoiler": {
+      "sfw_enabled": true,
+      "nsfw_enabled": true
     }
   }
 }
