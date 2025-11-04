@@ -23,11 +23,11 @@ def help():
         "version": "0.0.1",
         "description": "Get anime images from Waifu.pics API",
         "author": "Komihub",
-        "usage": "/anime_img [category] [-limit:5] [-sfw/nsfw] - Get anime images",
+        "usage": "/anime_img [category] [-5] [-sfw/nsfw] - Get anime images",
         "examples": [
             "/anime_img list",
-            "/anime_img waifu -limit:3",
-            "/anime_img kiss -sfw -limit:10",
+            "/anime_img waifu -3",
+            "/anime_img kiss -sfw -10",
             "/anime_img cuddle"
         ]
     }
@@ -61,15 +61,19 @@ async def anime_img_command(message: Message):
     
     for arg in args:
         if arg.startswith("-"):
-            if arg.lower().startswith("-limit:"):
+            if arg.lower().startswith("-limit:") or arg[1:].isdigit():
                 try:
-                    limit = int(arg.split(":")[1])
+                    if arg.lower().startswith("-limit:"):
+                        limit = int(arg.split(":")[1])
+                    else:
+                        limit = int(arg[1:])  # Remove the - and parse number
+                    
                     if limit < 1:
                         limit = 1
                     elif limit > 30:
                         limit = 30  # API max is 30
                 except (ValueError, IndexError):
-                    await message.answer("❌ Invalid limit format. Use -limit:number (1-30)")
+                    await message.answer("❌ Invalid limit format. Use -3 or -limit:number (1-30)")
                     return
             elif arg.lower() in ["-nsfw", "-nsfw:", "-sfw", "-sfw:"]:
                 if "nsfw" in arg.lower():
@@ -253,17 +257,17 @@ def create_usage_text():
 Get anime images from Waifu.pics API!
 
 **Usage:**
-/anime_img [category] [-limit:number] [-sfw/nsfw]
+/anime_img [category] [-number] [-sfw/nsfw]
 
 **Examples:**
 /anime_img list
-/anime_img waifu -limit:3
-/anime_img kiss -nfw -limit:10
-/anime_img cuddle -sfw -limit:1
+/anime_img waifu -3
+/anime_img kiss -nfw -10
+/anime_img cuddle -sfw -1
 
 **Parameters:**
 • **Category**: Choose from available categories
-• **-limit**: Number of images (1-30, default: 5)
+• **-number**: Number of images (1-30, default: 5)
 • **-sfw/-nsfw**: Content type (default: SFW)
 
 **Note:** Use /anime_img list to see all available categories! 🌟"""
@@ -283,8 +287,8 @@ def create_category_list():
 {nsfw_list}
 
 **Usage Examples:**
-• /anime_img waifu -limit:3
-• /anime_img kiss -sfw -limit:10
-• /anime_img cuddle -sfw -limit:1
+• /anime_img waifu -3
+• /anime_img kiss -sfw -10
+• /anime_img cuddle -sfw -1
 
 **Note:** NSFW content requires special permissions! ⚠️"""
