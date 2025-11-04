@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "komihub-telegram-bot"
 version = "1.0.0"
@@ -29,25 +33,18 @@ dependencies = [
     "pydantic>=2.10.0",
     "python-dotenv>=1.0.0",
     "requests>=2.32.5",
-    "yt-dlp",
+    "yt-dlp>=2025.10.22",
     "colorama>=0.4.6",
     "psutil>=7.1.2",
     "pillow",
-    "qrcode[pil]",
-    "python-jose[cryptography]",
-    "passlib[bcrypt]",
+    "qrcode[pil]>=7.4.2",
+    "python-jose[cryptography]>=3.5.0",
+    "passlib[bcrypt]>=1.7.4",
 ]
 
 [project.optional-dependencies]
-# Development dependencies
-dev = [
-    "ruff>=0.10.0",
-    "black>=24.0.0",
-    "mypy>=1.10.0",
-    "pytest>=8.0.0",
-    "pytest-asyncio>=0.24.0",
-    "httpx>=0.30.0",
-]
+# Development dependencies (disabled for now)
+# dev = []
 
 # Production dependencies
 prod = [
@@ -56,18 +53,14 @@ prod = [
     "structlog>=24.0.0",
 ]
 
-# Web service dependencies
-web = [
-    "fastapi>=0.120.1",
-    "uvicorn[standard]>=0.38.0",
-    "pydantic>=2.10.0",
-    "python-multipart>=0.0.20",
-    "prometheus-client>=0.20.0",
-]
+[tool.setuptools]
+# Include package data
+include-package-data = true
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[tool.setuptools.packages.find]
+# Include all directories
+include = ["*"]
+exclude = ["test*", "docs*", "examples*", "*.py", "pyproject.toml", "*.md", "*.yaml", "*.yml", "*.lock", "data*", "logs*", "*.json", "*.txt"]
 
 [tool.ruff]
 line-length = 88
@@ -107,14 +100,3 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
-
-[project.scripts]
-komihub-bot = "app:main"
-komihub-web = "web_server:main"
-komihub-dev = "app:run_dev"
-
-[project.urls]
-Homepage = "https://github.com/GrandpaEJ/KOMIHUB"
-Documentation = "https://github.com/GrandpaEJ/KOMIHUB#readme"
-Repository = "https://github.com/GrandpaEJ/KOMIHUB.git"
-"Bug Tracker" = "https://github.com/GrandpaEJ/KOMIHUB/issues"
