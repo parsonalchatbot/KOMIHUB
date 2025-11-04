@@ -119,10 +119,6 @@ def apply_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
         "apis": {
             "github_repo": "GrandpaEJ/KOMIHUB"
         },
-        "image_spoiler": {
-            "sfw_enabled": True,
-            "nsfw_enabled": True
-        },
         "database": {
             "data_dir": "data",
             "backup_enabled": True,
@@ -142,6 +138,15 @@ def apply_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
                 "max_requests": 100,
                 "window_seconds": 60
             }
+        },
+        "image_spoiler": {
+            "sfw_enabled": True,
+            "nsfw_enabled": True
+        },
+        "hosting": {
+            "mode": "polling",
+            "port": 8000,
+            "host": "0.0.0.0"
         }
     }
     

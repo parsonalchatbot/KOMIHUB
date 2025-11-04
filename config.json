@@ -36,10 +36,15 @@
       "enabled": true,
       "max_requests": 100,
       "window_seconds": 60
-    },
-    "image_spoiler": {
-      "sfw_enabled": true,
-      "nsfw_enabled": true
     }
+  },
+  "image_spoiler": {
+    "sfw_enabled": true,
+    "nsfw_enabled": true
+  },
+  "hosting": {
+    "mode": "polling",
+    "port": 8000,
+    "host": "0.0.0.0"
   }
 }

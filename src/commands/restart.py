@@ -22,8 +22,10 @@ def help():
 def shutdown_web_server():
     """Gracefully shutdown web server if running"""
     try:
-        # Check if port 8000 is in use (web server port)
         import socket
+        import psutil
+        
+        # Check if port 8000 is in use (web server port)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         result = sock.connect_ex(('localhost', 8000))
         sock.close()
@@ -31,19 +33,50 @@ def shutdown_web_server():
         if result == 0:
             logger.info("Web server detected on port 8000, sending graceful shutdown signal...")
             
-            # Try to send SIGTERM to web server process
+            # Try to find and terminate web server processes
             try:
-                import psutil
                 for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-                    if 'app.py' in proc.info['cmdline'] or 'uvicorn' in proc.info['name']:
-                        logger.info(f"Terminating web server process {proc.info['pid']}")
-                        proc.terminate()
-                        proc.wait(timeout=5)
-                        break
+                    try:
+                        cmdline = proc.info['cmdline'] or []
+                        name = proc.info['name'] or ''
+                        
+                        # Look for web server processes
+                        if ('uvicorn' in name.lower() or
+                            any('app.py' in str(cmd) for cmd in cmdline) or
+                            any('web_server' in str(cmd) for cmd in cmdline)):
+                            
+                            logger.info(f"Found web server process {proc.info['pid']}: {cmdline}")
+                            proc.terminate()
+                            try:
+                                proc.wait(timeout=3)
+                                logger.info(f"Web server process {proc.info['pid']} terminated gracefully")
+                            except psutil.TimeoutExpired:
+                                logger.warning(f"Process {proc.info['pid']} didn't terminate, killing...")
+                                proc.kill()
+                                proc.wait()
+                            break
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        continue
+                        
             except Exception as e:
-                logger.warning(f"Could not terminate web server gracefully: {e}")
+                logger.warning(f"Could not terminate web server processes: {e}")
+        
+        # Wait a bit for port to be released
+        import time
+        time.sleep(2)
+        
+        # Final check
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex(('localhost', 8000))
+        sock.close()
+        
+        if result == 0:
+            logger.warning("Port 8000 still in use after shutdown attempt")
+        else:
+            logger.info("Port 8000 is now available")
+            
     except Exception as e:
-        logger.warning(f"Error checking for web server: {e}")
+        logger.warning(f"Error in web server shutdown: {e}")
 
 
 def restart_bot_process():
@@ -56,15 +89,19 @@ def restart_bot_process():
     restart_cmd = [python_exe, script_path]
     
     # Check hosting mode to determine restart strategy
-    hosting_mode = config.config_data.get("hosting", {}).get("mode", "auto")
+    hosting_mode = config.config_data.get("hosting", {}).get("mode", "polling")
     
-    if hosting_mode == "webhook" or hosting_mode == "auto":
+    if hosting_mode == "webhook":
         # For web hosting, just restart the app
         logger.info(f"Starting new bot process (web mode): {restart_cmd}")
         return subprocess.Popen(restart_cmd, cwd=cwd)
-    else:
+    elif hosting_mode == "polling":
         # For polling mode, same as before
         logger.info(f"Starting new bot process (polling mode): {restart_cmd}")
+        return subprocess.Popen(restart_cmd, cwd=cwd)
+    else:
+        # Default fallback
+        logger.info(f"Starting new bot process (default mode): {restart_cmd}")
         return subprocess.Popen(restart_cmd, cwd=cwd)
 
 
