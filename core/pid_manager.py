@@ -184,22 +184,42 @@ class PIDManager:
         return False
 
     def cleanup_old_instances(self) -> int:
-        """Kill any old bot instances"""
+        """Kill any old bot instances, excluding processes started recently"""
         current_pid = os.getpid()
         killed_count = 0
-
+        recent_processes = set()
+        
+        # Wait a moment for new processes to start
+        time.sleep(1)
+        
+        # Record current running bot processes to avoid killing them
+        for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+            try:
+                if proc.info["name"] in ["python3", "python", "uvicorn"]:
+                    cmdline = proc.info["cmdline"] or []
+                    cmdline_str = " ".join(cmdline)
+                    
+                    # Check for bot processes
+                    if ("main.py" in cmdline_str or "src/web_server.py" in cmdline_str or
+                        "web_server.py" in cmdline_str or "app.py" in cmdline_str or
+                        "uvicorn" in cmdline_str):
+                        recent_processes.add(proc.info["pid"])
+                        
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+        
+        # Now try to kill old processes
         try:
-            # Find all python processes running main.py or web_server.py
             for proc in psutil.process_iter(["pid", "name", "cmdline"]):
                 try:
                     if proc.info["name"] in ["python3", "python", "uvicorn"]:
                         cmdline = proc.info["cmdline"] or []
                         cmdline_str = " ".join(cmdline)
                         
-                        # Check for bot processes - include app.py as well
+                        # Check for bot processes but skip recent ones
                         if ("main.py" in cmdline_str or "src/web_server.py" in cmdline_str or
                             "web_server.py" in cmdline_str or "app.py" in cmdline_str or
-                            "uvicorn" in cmdline_str) and proc.info["pid"] != current_pid:
+                            "uvicorn" in cmdline_str) and proc.info["pid"] not in recent_processes:
                             
                             logger.info(f"Killing old bot/server instance: PID {proc.info['pid']} - {cmdline_str}")
                             try:

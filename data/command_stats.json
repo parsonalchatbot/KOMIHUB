@@ -1,19 +1,19 @@
 {
   "restart@KomiHubbot": {
-    "total_uses": 22,
+    "total_uses": 24,
     "unique_users": 1,
-    "last_used": 1762235663.0349736,
+    "last_used": 1762235931.59762,
     "users": {
-      "6122160777": 22
+      "6122160777": 24
     }
   },
   "help": {
-    "total_uses": 7,
+    "total_uses": 8,
     "unique_users": 2,
-    "last_used": 1762228499.9128625,
+    "last_used": 1762235947.1088762,
     "users": {
       "5086068355": 1,
-      "6122160777": 6
+      "6122160777": 7
     }
   },
   "add_admin": {
