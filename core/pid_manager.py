@@ -15,6 +15,10 @@ class PIDManager:
         """Ensure data directory exists"""
         os.makedirs(os.path.dirname(self.pid_file), exist_ok=True)
 
+    def save_pid(self, pid: int = None):
+        """Save bot process PID to file (backward compatibility)"""
+        return self.save_bot_pid(pid)
+
     def save_bot_pid(self, pid: int = None):
         """Save bot process PID to file"""
         if pid is None:
@@ -37,6 +41,10 @@ class PIDManager:
         except Exception as e:
             logger.error(f"Failed to save server PID: {e}")
 
+    def get_pid(self) -> int:
+        """Get saved bot PID from file (backward compatibility)"""
+        return self.get_bot_pid()
+
     def get_bot_pid(self) -> int:
         """Get saved bot PID from file"""
         try:
@@ -57,6 +65,20 @@ class PIDManager:
             logger.error(f"Failed to read server PID: {e}")
         return None
 
+    def is_running(self, pid: int = None) -> bool:
+        """Check if a process is running (backward compatibility)"""
+        if pid is None:
+            pid = self.get_bot_pid()
+
+        if pid is None:
+            return False
+
+        try:
+            process = psutil.Process(pid)
+            return process.is_running() and process.status() != psutil.STATUS_ZOMBIE
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            return False
+
     def kill_bot(self, timeout: int = 5) -> bool:
         """Kill the bot process gracefully"""
         return self._kill_process(self.get_bot_pid(), "bot", timeout)
@@ -64,6 +86,12 @@ class PIDManager:
     def kill_server(self, timeout: int = 3) -> bool:
         """Kill the web server process gracefully"""
         return self._kill_process(self.get_server_pid(), "server", timeout)
+
+    def kill_process(self, pid: int = None, timeout: int = 5) -> bool:
+        """Kill a process gracefully (backward compatibility)"""
+        if pid is None:
+            pid = self.get_bot_pid()
+        return self._kill_process(pid, "bot", timeout)
 
     def _kill_process(self, pid: int, process_type: str, timeout: int = 5) -> bool:
         """Kill a specific process gracefully"""
