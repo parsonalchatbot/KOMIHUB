@@ -2,9 +2,8 @@ from core import Message, command, logger, get_lang, config
 import os
 import sys
 import subprocess
-import signal
 import time
-from pathlib import Path
+from core.pid_manager import pid_manager
 
 lang = get_lang()
 
@@ -12,97 +11,23 @@ lang = get_lang()
 def help():
     return {
         "name": "restart",
-        "version": "1.0.0",
-        "description": "Restart the entire bot application (supports both web and polling modes)",
+        "version": "2.0.0",
+        "description": "Restart the entire bot application (enhanced with proper process management)",
         "author": "Komihub",
         "usage": "/restart",
     }
 
 
-def shutdown_web_server():
-    """Gracefully shutdown web server if running"""
-    try:
-        import socket
-        import psutil
-        
-        # Check if port 8000 is in use (web server port)
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        result = sock.connect_ex(('localhost', 8000))
-        sock.close()
-        
-        if result == 0:
-            logger.info("Web server detected on port 8000, sending graceful shutdown signal...")
-            
-            # Try to find and terminate web server processes
-            try:
-                for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-                    try:
-                        cmdline = proc.info['cmdline'] or []
-                        name = proc.info['name'] or ''
-                        
-                        # Look for web server processes
-                        if ('uvicorn' in name.lower() or
-                            any('app.py' in str(cmd) for cmd in cmdline) or
-                            any('web_server' in str(cmd) for cmd in cmdline)):
-                            
-                            logger.info(f"Found web server process {proc.info['pid']}: {cmdline}")
-                            proc.terminate()
-                            try:
-                                proc.wait(timeout=3)
-                                logger.info(f"Web server process {proc.info['pid']} terminated gracefully")
-                            except psutil.TimeoutExpired:
-                                logger.warning(f"Process {proc.info['pid']} didn't terminate, killing...")
-                                proc.kill()
-                                proc.wait()
-                            break
-                    except (psutil.NoSuchProcess, psutil.AccessDenied):
-                        continue
-                        
-            except Exception as e:
-                logger.warning(f"Could not terminate web server processes: {e}")
-        
-        # Wait a bit for port to be released
-        import time
-        time.sleep(2)
-        
-        # Final check
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        result = sock.connect_ex(('localhost', 8000))
-        sock.close()
-        
-        if result == 0:
-            logger.warning("Port 8000 still in use after shutdown attempt")
-        else:
-            logger.info("Port 8000 is now available")
-            
-    except Exception as e:
-        logger.warning(f"Error in web server shutdown: {e}")
-
-
-def restart_bot_process():
-    """Start a new bot process with appropriate mode"""
+def start_bot_process():
+    """Start a new bot process"""
     python_exe = sys.executable
     script_path = os.path.abspath(sys.argv[0])
     cwd = os.getcwd()
     
-    # Determine restart command based on hosting mode
     restart_cmd = [python_exe, script_path]
+    logger.info(f"Starting new bot process: {restart_cmd}")
     
-    # Check hosting mode to determine restart strategy
-    hosting_mode = config.config_data.get("hosting", {}).get("mode", "polling")
-    
-    if hosting_mode == "webhook":
-        # For web hosting, just restart the app
-        logger.info(f"Starting new bot process (web mode): {restart_cmd}")
-        return subprocess.Popen(restart_cmd, cwd=cwd)
-    elif hosting_mode == "polling":
-        # For polling mode, same as before
-        logger.info(f"Starting new bot process (polling mode): {restart_cmd}")
-        return subprocess.Popen(restart_cmd, cwd=cwd)
-    else:
-        # Default fallback
-        logger.info(f"Starting new bot process (default mode): {restart_cmd}")
-        return subprocess.Popen(restart_cmd, cwd=cwd)
+    return subprocess.Popen(restart_cmd, cwd=cwd)
 
 
 @command("restart")
@@ -121,34 +46,34 @@ async def restart(message: Message):
     try:
         # Notify user that restart is starting
         restart_msg = await message.answer(
-            "🔄 <b>Restarting Bot Application...</b>\n\n⏳ Initializing restart process...",
+            "🔄 <b>Restarting Bot Application...</b>\n\n⏳ Shutting down existing processes...",
             parse_mode="HTML",
         )
 
-        # Check if this might be a web server
-        hosting_mode = config.config_data.get("hosting", {}).get("mode", "auto")
+        # Get hosting mode
+        hosting_mode = config.config_data.get("hosting", {}).get("mode", "polling")
         
-        if hosting_mode in ["webhook", "auto"]:
-            restart_msg = await restart_msg.edit_text(
-                "🔄 <b>Restarting Bot Application...</b>\n\n🌐 Detected web hosting mode\n⏳ Shutting down web server...",
-                parse_mode="HTML",
-            )
-            
-            # Gracefully shutdown web server
-            shutdown_web_server()
-            
-            # Wait for web server to shut down
-            time.sleep(3)
+        restart_msg = await restart_msg.edit_text(
+            "🔄 <b>Restarting Bot Application...</b>\n\n🧹 Killing old bot processes...",
+            parse_mode="HTML",
+        )
+
+        # Kill all existing bot and server processes
+        killed_count = pid_manager.kill_all_bot_processes()
+        logger.info(f"Killed {killed_count} old processes")
 
         # Start new process in background
-        logger.info("Starting new bot process...")
+        restart_msg = await restart_msg.edit_text(
+            "🔄 <b>Restarting Bot Application...</b>\n\n🚀 Starting new bot instance...",
+            parse_mode="HTML",
+        )
+
         try:
-            new_process = restart_bot_process()
+            new_process = start_bot_process()
             logger.info(f"New process started with PID: {new_process.pid}")
 
-            # Save the new PID
-            from core.pid_manager import pid_manager
-            pid_manager.save_pid(new_process.pid)
+            # Save the new bot PID
+            pid_manager.save_bot_pid(new_process.pid)
 
         except Exception as e:
             await restart_msg.edit_text(
@@ -158,15 +83,19 @@ async def restart(message: Message):
             return
 
         # Wait for the new process to initialize
+        restart_msg = await restart_msg.edit_text(
+            "🔄 <b>Restarting Bot Application...</b>\n\n⏳ Waiting for new instance to start...",
+            parse_mode="HTML",
+        )
         time.sleep(5)
 
         # Check if new process is still running
         if new_process.poll() is None:
-            # Process is running, wait a bit more for it to fully start
+            # Process is running
             time.sleep(2)
 
             await restart_msg.edit_text(
-                f"✅ <b>Bot Restarted Successfully!</b>\n\n🔄 New instance is now running.\n🌐 Hosting Mode: {hosting_mode.upper()}\n⏹️ Shutting down old instance...",
+                f"✅ <b>Bot Restarted Successfully!</b>\n\n🔄 New instance is now running.\n📊 PID: {new_process.pid}\n🌐 Mode: {hosting_mode.upper()}\n⏹️ Shutting down old instance...",
                 parse_mode="HTML",
             )
 
@@ -174,19 +103,12 @@ async def restart(message: Message):
             time.sleep(1)
 
             # Stop the bot polling before exiting
-            from core.bot import bot_instance
-
-            # Check if bot instance exists and has dp attribute
-            if hasattr(bot_instance, 'dp'):
-                await bot_instance.dp.stop_polling()
-
-            # If this is a web server, also stop it gracefully
-            if hosting_mode in ["webhook", "auto"]:
-                try:
-                    # Try to shut down web server gracefully
-                    shutdown_web_server()
-                except Exception as e:
-                    logger.warning(f"Error during web server shutdown: {e}")
+            try:
+                from core.bot import bot_instance
+                if hasattr(bot_instance, 'dp'):
+                    await bot_instance.dp.stop_polling()
+            except Exception as e:
+                logger.warning(f"Error stopping bot polling: {e}")
 
             # Exit current process gracefully
             logger.info("Shutting down current bot process for restart")

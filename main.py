@@ -25,7 +25,7 @@ async def main():
     print_banner()
 
     # Save current PID and cleanup old instances
-    pid_manager.save_pid()
+    pid_manager.save_bot_pid()
     killed = pid_manager.cleanup_old_instances()
     if killed > 0:
         print(f"🧹 Cleaned up {killed} old bot instances")
