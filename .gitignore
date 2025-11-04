@@ -1,5 +1,4 @@
 # Sensitive configuration files
-config.py
 .env
 # config.json - can be shared but with placeholder values
 
@@ -8,15 +7,64 @@ web_api/
 web_api_server.py
 otp_bot_server.py
 
+# Python cache and build files
 __pycache__
 *.pyc
 *~
 .venv/
 -e 
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
 # Build tools and binaries
 tools/
+build/
+dist/
+*.egg-info/
 
-
-.ruff_cache/data/
-data/*
+# Development and testing
 test.py
+test_*.py
+tests/
+coverage.xml
+*.cover
+
+# Data and logs
+data/
+logs/
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Environment and deployment
+.env.local
+.env.production
+.env.development
+render.yaml.backup
+
+# Web service files
+gunicorn.conf.py
+
+# AI/ML model cache
+model_cache/
+huggingface_cache/
+
+# Backup files
+*.backup
+*.bak
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
