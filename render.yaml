@@ -1,0 +1,53 @@
+# Render deployment configuration for KOMIHUB Bot
+# This file should be placed at the root of your repository
+
+services:
+  - type: web
+    name: komihub-bot
+    env: python
+    plan: free  # Change to 'starter' for paid plan
+    buildCommand: "pip install -r pyproject.toml"
+    startCommand: "uvicorn app:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    envVars:
+      - key: HOSTING_MODE
+        value: webhook
+      - key: LOG_LEVEL
+        value: INFO
+      - key: PORT
+        fromService:
+          type: envVarGroup
+          name: komihub-env
+          property: PORT
+      - key: BOT_TOKEN
+        sync: false
+        fromSecret: bot-token
+      - key: BOT_NAME
+        value: KOMIHUB BOT
+      - key: ADMIN_NAME
+        value: Your Admin Name
+      - key: ADMIN_ID
+        value: "1234567890"
+      - key: WEBHOOK_URL
+        sync: false
+        fromSecret: webhook-url
+
+  - type: envVarGroup
+    name: komihub-env
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_TO_FILE
+        value: "true"
+      - key: LOG_TO_CONSOLE
+        value: "false"
+      - key: MAX_WORKERS
+        value: "2"
+      - key: DATABASE_URL
+        value: sqlite:///./data/komihub.db
+
+# Static file serving for health checks and info
+staticSites:
+  - name: komihub-static
+    buildCommand: echo "Static files served"
+    staticPublishPath: ./
