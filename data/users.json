@@ -1,1 +1,29 @@
-{}
+{
+  "6122160777": {
+    "user_id": 6122160777,
+    "role": "user",
+    "joined_at": 1762228512.4541702,
+    "last_seen": 1762228513.590886,
+    "username": "wtf_jui",
+    "first_name": "Deleted Account",
+    "last_name": null
+  },
+  "5086068355": {
+    "user_id": 5086068355,
+    "role": "user",
+    "joined_at": 1762195305.0392141,
+    "last_seen": 1762195305.0403788,
+    "username": "grandpaej",
+    "first_name": "ㅤ",
+    "last_name": null
+  },
+  "6860872069": {
+    "user_id": 6860872069,
+    "role": "user",
+    "joined_at": 1762193059.8171937,
+    "last_seen": 1762193059.8175168,
+    "username": "yoursahu",
+    "first_name": "SA",
+    "last_name": "HU"
+  }
+}

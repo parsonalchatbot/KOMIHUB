@@ -4,6 +4,11 @@
   ],
   "admins": [],
   "elders": [],
-  "gc_admins": [],
+  "gc_admins": [
+    {
+      "user_id": 987654321,
+      "added_at": 1762180330.5717535
+    }
+  ],
   "ch_admins": []
 }

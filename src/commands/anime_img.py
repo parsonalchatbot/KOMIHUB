@@ -27,7 +27,7 @@ def help():
         "examples": [
             "/anime_img list",
             "/anime_img waifu -limit:3",
-            "/anime_img kiss -nsfw -limit:10",
+            "/anime_img kiss -sfw -limit:10",
             "/anime_img cuddle"
         ]
     }

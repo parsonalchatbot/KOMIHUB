@@ -1,1 +1,123 @@
-{}
+{
+  "restart@KomiHubbot": {
+    "total_uses": 11,
+    "unique_users": 1,
+    "last_used": 1762228513.6016433,
+    "users": {
+      "6122160777": 11
+    }
+  },
+  "help": {
+    "total_uses": 7,
+    "unique_users": 2,
+    "last_used": 1762228499.9128625,
+    "users": {
+      "5086068355": 1,
+      "6122160777": 6
+    }
+  },
+  "add_admin": {
+    "total_uses": 2,
+    "unique_users": 1,
+    "last_used": 1762179698.088542,
+    "users": {
+      "6122160777": 2
+    }
+  },
+  "baby": {
+    "total_uses": 28,
+    "unique_users": 1,
+    "last_used": 1762187155.5125144,
+    "users": {
+      "6122160777": 28
+    }
+  },
+  "baby@KomiHubbot": {
+    "total_uses": 7,
+    "unique_users": 1,
+    "last_used": 1762183417.6791258,
+    "users": {
+      "6122160777": 7
+    }
+  },
+  "restart": {
+    "total_uses": 23,
+    "unique_users": 1,
+    "last_used": 1762195949.0418532,
+    "users": {
+      "6122160777": 23
+    }
+  },
+  "emojimix": {
+    "total_uses": 3,
+    "unique_users": 1,
+    "last_used": 1762188778.3249674,
+    "users": {
+      "6122160777": 3
+    }
+  },
+  "dalle": {
+    "total_uses": 2,
+    "unique_users": 1,
+    "last_used": 1762189933.6250508,
+    "users": {
+      "6122160777": 2
+    }
+  },
+  "img_ai": {
+    "total_uses": 1,
+    "unique_users": 1,
+    "last_used": 1762190363.637774,
+    "users": {
+      "6122160777": 1
+    }
+  },
+  "img_ai2": {
+    "total_uses": 1,
+    "unique_users": 1,
+    "last_used": 1762190821.093263,
+    "users": {
+      "6122160777": 1
+    }
+  },
+  "img-ai2": {
+    "total_uses": 1,
+    "unique_users": 1,
+    "last_used": 1762192959.4576182,
+    "users": {
+      "6860872069": 1
+    }
+  },
+  "img_ai2@KomiHubbot": {
+    "total_uses": 4,
+    "unique_users": 1,
+    "last_used": 1762192992.7334557,
+    "users": {
+      "6860872069": 4
+    }
+  },
+  "yt_music@KomiHubbot": {
+    "total_uses": 1,
+    "unique_users": 1,
+    "last_used": 1762192983.4014726,
+    "users": {
+      "6860872069": 1
+    }
+  },
+  "start": {
+    "total_uses": 1,
+    "unique_users": 1,
+    "last_used": 1762195305.0413291,
+    "users": {
+      "5086068355": 1
+    }
+  },
+  "anime_img": {
+    "total_uses": 8,
+    "unique_users": 1,
+    "last_used": 1762195960.4008913,
+    "users": {
+      "6122160777": 8
+    }
+  }
+}
