@@ -14,7 +14,7 @@ def help():
     }
 
 
-API_URL = "http://2.56.246.81:30170/api/simsimi?text="
+API_URL = "https://mahbub-ullash.cyberbot.top/api/simsimi?text="
 
 
 # /baby command handler

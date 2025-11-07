@@ -4,7 +4,7 @@ from core import Message, command, logger, get_lang, FSInputFile
 
 lang = get_lang()
 
-API_URL = "http://2.56.246.81:30170/api/emojimix"
+API_URL = "https://mahbub-ullash.cyberbot.top/api/emojimix"
 
 
 def help():
