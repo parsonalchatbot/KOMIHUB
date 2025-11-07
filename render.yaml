@@ -6,7 +6,7 @@ services:
     name: komihub-bot
     env: python
     plan: free  # Change to 'starter' for paid plan
-    buildCommand: "pip install -r pyproject.toml"
+    buildCommand: "pip install ."
     startCommand: "python -m uvicorn web_server:app --host 0.0.0.0 --port $PORT"
     healthCheckPath: /health
     envVars:

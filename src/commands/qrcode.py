@@ -1,5 +1,5 @@
 from core import Message, command, logger, get_lang
-import pyqrcode
+from core.optional_deps import get_qr_code_generators
 import io
 
 lang = get_lang()
@@ -40,13 +40,37 @@ async def qrcode_command(message: Message):
         return
 
     try:
-        # Generate QR code
-        qr = pyqrcode.create(text)
-
-        # Create PNG buffer
-        buffer = io.BytesIO()
-        qr.png(buffer, scale=6)
-        buffer.seek(0)
+        # Get available QR code generators
+        generators = get_qr_code_generators()
+        
+        if not generators:
+            await message.answer("❌ QR code generation libraries not available. Please contact the administrator.")
+            return
+        
+        # Try each generator
+        buffer = None
+        for gen_name, generator_func in generators:
+            try:
+                if gen_name == "pyqrcode":
+                    qr = generator_func(text)
+                    buffer = io.BytesIO()
+                    qr.png(buffer, scale=6)
+                    buffer.seek(0)
+                elif gen_name == "qrcode":
+                    qr = generator_func(text)
+                    buffer = io.BytesIO()
+                    qr.save(buffer, format='PNG')
+                    buffer.seek(0)
+                
+                if buffer:
+                    break
+            except Exception as e:
+                logger.warning(f"QR generator {gen_name} failed: {e}")
+                continue
+        
+        if not buffer:
+            await message.answer("❌ Failed to generate QR code with any available library.")
+            return
 
         # Send the QR code image
         await message.answer_photo(

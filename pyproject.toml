@@ -38,8 +38,8 @@ dependencies = [
     "psutil>=7.1.2",
     "pillow",
     "qrcode[pil]>=7.4.2",
-    "pyqrcode",
-    "toml",
+    "pypng>=0.0.20",
+    "toml>=0.10.2",
     "python-jose[cryptography]>=3.5.0",
     "passlib[bcrypt]>=1.7.4",
 ]

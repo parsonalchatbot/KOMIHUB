@@ -1,10 +1,10 @@
 from core import Message, command, logger, get_lang
+from core.optional_deps import safe_import_toml
 import os
 import re
 import ast
 import importlib.util
 import config
-import toml
 from typing import Set
 
 lang = get_lang()
@@ -13,6 +13,29 @@ lang = get_lang()
 def get_safe_imports_from_pyproject() -> Set[str]:
     """Get safe imports from pyproject.toml dependencies"""
     try:
+        toml = safe_import_toml()
+        if not toml:
+            logger.warning("toml not available, using fallback safe imports")
+            return {
+                "core",
+                "aiogram",
+                "asyncio",
+                "typing",
+                "datetime",
+                "time",
+                "json",
+                "re",
+                "os",
+                "pathlib",
+                "tempfile",
+                "shutil",
+                "subprocess",
+                "sys",
+                "inspect",
+                "functools",
+                "config",
+            }
+        
         with open("pyproject.toml", "r") as f:
             data = toml.load(f)
 
