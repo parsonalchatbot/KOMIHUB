@@ -49,6 +49,14 @@ async def lifespan(app: FastAPI):
         register_events()
         logger.info("Events registered")
         
+        # Setup webhook if in webhook mode
+        if os.getenv("WEBHOOK_URL") and os.getenv("HOSTING_MODE") != "polling":
+            success = await main_bot.setup_webhook()
+            if success:
+                logger.info("Webhook setup completed")
+            else:
+                logger.warning("Webhook setup failed")
+        
         logger.info("Bot initialized successfully")
         
     except Exception as e:
@@ -156,11 +164,12 @@ async def telegram_webhook(request: Request):
         
         # Get the update data
         update_data = await request.json()
-        
-        # Process the update
-        # Note: This is a simplified webhook handler
-        # In a real implementation, you would process the update through the bot's dispatcher
         logger.info(f"Received webhook update: {update_data.get('update_id', 'unknown')}")
+        
+        # Process the update through the bot's dispatcher
+        from aiogram.types import Update
+        update = Update(**update_data)
+        await bot_instance.process_update(update)
         
         return {"status": "ok", "processed": True}
         

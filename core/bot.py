@@ -17,6 +17,7 @@ class KomihubBot:
         self.lang = get_lang()
         self.webhook_url = os.getenv("WEBHOOK_URL")
         self.hosting_mode = os.getenv("HOSTING_MODE", "auto")
+        self.webhook_setup_done = False
 
         # Register middleware
         self.dp.message.middleware.register(UserMiddleware())
