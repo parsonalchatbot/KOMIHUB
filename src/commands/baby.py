@@ -1,4 +1,4 @@
-
+import config
 from core import Message, command, logger, get_lang
 
 lang = get_lang()
@@ -13,8 +13,8 @@ def help():
         "usage": "/baby - Start chatting with baby AI",
     }
 
-
-API_URL = "https://mahbub-ullash.cyberbot.top/api/simsimi?text="
+base_url = config.API_ULLASH_BASE
+API_URL = f"{base_url}/api/simsimi?text="
 
 
 # /baby command handler

@@ -9,12 +9,12 @@
     }
   },
   "help": {
-    "total_uses": 11,
+    "total_uses": 12,
     "unique_users": 2,
-    "last_used": 1762263187.6535573,
+    "last_used": 1762622167.057464,
     "users": {
       "5086068355": 1,
-      "6122160777": 10
+      "6122160777": 11
     }
   },
   "add_admin": {
@@ -51,11 +51,11 @@
     }
   },
   "emojimix": {
-    "total_uses": 6,
+    "total_uses": 8,
     "unique_users": 2,
-    "last_used": 1762249626.9647837,
+    "last_used": 1762622269.2057126,
     "users": {
-      "6122160777": 5,
+      "6122160777": 7,
       "6860872069": 1
     }
   },
@@ -116,11 +116,11 @@
     }
   },
   "anime_img": {
-    "total_uses": 14,
+    "total_uses": 15,
     "unique_users": 1,
-    "last_used": 1762263138.500557,
+    "last_used": 1762622125.175253,
     "users": {
-      "6122160777": 14
+      "6122160777": 15
     }
   },
   "ping@KomiHubbot": {

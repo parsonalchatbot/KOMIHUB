@@ -15,6 +15,11 @@ except ImportError:
     # Fallback if python-dotenv is not available
     pass
 
+
+
+API_ULLASH_BASE = "https://mahbub-ullash.cyberbot.top"
+
+
 def load_config() -> Dict[str, Any]:
     """Load configuration - config.json as main, .env as fallback"""
     

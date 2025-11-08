@@ -1,10 +1,12 @@
 import aiohttp
 import urllib.parse
 from core import Message, command, logger, get_lang, FSInputFile, config
+import config
 
 lang = get_lang()
 
-API_URL = "https://mahbub-ullash.cyberbot.top/api/dalle4"
+base_url = config.API_ULLASH_BASE
+API_URL = f"{base_url}/api/dalle4"
 
 
 def help():
