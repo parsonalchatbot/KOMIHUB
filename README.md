@@ -24,7 +24,7 @@ A comprehensive Telegram bot framework built with aiogram, featuring modular com
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/grandpaej/komihub
    cd tg-aiogram-1
    ```
 
